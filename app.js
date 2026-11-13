@@ -1,8 +1,11 @@
 /* ==========================================================
    app.js  |  Portal do Aluno (React 18 via CDN, sem build)
    Usa React.createElement (h) em vez de JSX.
-   - Login ......... nome + CPF (validado) + senha. Só o nome é salvo
-                     (localStorage 'pda_nome'). CPF e senha NÃO são guardados.
+   - Login ......... duas abas: Aluno (nome + CPF validado + senha; só o
+                     nome é salvo em localStorage 'pda_nome') e Coordenação
+                     (e-mail + senha + perfil). A Coordenação segue direto
+                     para agendamento/index.html?gestao=coord|adm.
+                     Abrir index.html#gestao já mostra a aba Coordenação.
    - Portal ........ topbar, menu lateral, cards, banner
    - Agendamento ... link para agendamento/index.html (mesma aba)
    ========================================================== */
@@ -165,11 +168,22 @@ const maskCpf = v => v.replace(/\D/g, "").slice(0, 11)
   .replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
 function Login({ onEnter }){
+  const [tipo, setTipo] = useState(() => location.hash === "#gestao" ? "gestao" : "aluno");
+  const [email, setEmail] = useState(""), [perfil, setPerfil] = useState("coord");
   const [nome, setNome] = useState(""), [cpf, setCpf] = useState(""), [senha, setSenha] = useState("");
   const [ver, setVer] = useState(false), [err, setErr] = useState({}), [info, setInfo] = useState("");
 
   const submit = e => {
     e.preventDefault();
+    if (tipo === "gestao") {
+      const x = {};
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) x.email = "Informe seu e-mail institucional.";
+      if (senha.length < 6) x.senha = "A senha deve ter pelo menos 6 caracteres.";
+      setErr(x);
+      if (Object.keys(x).length) return;
+      location.href = "agendamento/index.html?gestao=" + perfil; /* nada é guardado */
+      return;
+    }
     const n = nome.trim().replace(/\s+/g, " "), x = {};
     if (n.length < 2) x.nome = "Informe como podemos chamar você.";
     if (!validCpf(cpf)) x.cpf = "Informe um CPF válido, com 11 números.";
@@ -178,6 +192,9 @@ function Login({ onEnter }){
     if (Object.keys(x).length) return;
     onEnter(n); /* CPF e senha não são guardados */
   };
+
+  const troca = t => { setTipo(t); setErr({}); setInfo(""); history.replaceState(null, "", t === "gestao" ? "#gestao" : location.pathname); };
+  const g = tipo === "gestao";
 
   const field = (id, label, props, extra) => h("div", { className: "fld" },
     h("label", { htmlFor: id }, label),
@@ -192,18 +209,28 @@ function Login({ onEnter }){
         h("svg", { width: 38, height: 38, viewBox: "0 0 38 38", "aria-hidden": true },
           h("path", { d: "M19 4L35 33H3z", fill: "#f26a1b" }), h("path", { d: "M19 14l9 16H10z", fill: "#fff" })),
         h("div", null, "Portal", h("br"), "do Aluno")),
-      h("h1", null, "Bem-vindo!"),
-      h("p", { className: "lead" }, "Que bom ter você aqui. Acesse o Portal do Aluno para continuar."),
+      h("h1", null, g ? "Área da coordenação" : "Bem-vindo!"),
+      h("p", { className: "lead" }, g ? "Acesso para coordenadores e administradores. Você segue direto para a gestão de atendimentos." : "Que bom ter você aqui. Acesse o Portal do Aluno para continuar."),
+      h("div", { className: "tipo", role: "group", "aria-label": "Tipo de acesso" },
+        h("button", { type: "button", "aria-pressed": !g, onClick: () => troca("aluno") }, "Sou aluno"),
+        h("button", { type: "button", "aria-pressed": g, onClick: () => troca("gestao") }, "Sou coordenador")),
       h("form", { onSubmit: submit, noValidate: true },
-        field("nome", "Nome", { type: "text", value: nome, maxLength: 40, autoComplete: "name", placeholder: "Como você quer ser chamado(a)", onChange: e => setNome(e.target.value) }),
-        field("cpf", "CPF", { type: "text", inputMode: "numeric", value: cpf, autoComplete: "off", placeholder: "000.000.000-00", onChange: e => setCpf(maskCpf(e.target.value)) }),
+        g && field("email", "E-mail institucional", { type: "email", value: email, autoComplete: "username", placeholder: "nome@exemplo.edu.br", onChange: e => setEmail(e.target.value) }),
+        g && h("div", { className: "fld" },
+          h("label", { htmlFor: "perfil" }, "Perfil"),
+          h("div", { className: "inp" },
+            h("select", { id: "perfil", value: perfil, onChange: e => setPerfil(e.target.value) },
+              h("option", { value: "coord" }, "Coordenador de curso"),
+              h("option", { value: "adm" }, "Administrador institucional")))),
+        !g && field("nome", "Nome", { type: "text", value: nome, maxLength: 40, autoComplete: "name", placeholder: "Como você quer ser chamado(a)", onChange: e => setNome(e.target.value) }),
+        !g && field("cpf", "CPF", { type: "text", inputMode: "numeric", value: cpf, autoComplete: "off", placeholder: "000.000.000-00", onChange: e => setCpf(maskCpf(e.target.value)) }),
         field("senha", "Senha", { type: ver ? "text" : "password", value: senha, autoComplete: "current-password", onChange: e => setSenha(e.target.value) },
           h("button", { type: "button", className: "eye", "aria-pressed": ver, "aria-label": ver ? "Ocultar senha" : "Mostrar senha", onClick: () => setVer(!ver) }, Icon(ver ? "eyeoff" : "eye"))),
         h("button", { type: "button", className: "link", onClick: () => setInfo("Recuperação de senha fora do escopo desta demonstração.") }, "Esqueci minha senha"),
         info && h("p", { className: "mu-note", role: "status" }, info),
-        h("button", { type: "submit", className: "go" }, "Entrar")),
+        h("button", { type: "submit", className: "go" }, g ? "Entrar na gestão" : "Entrar")),
       h("footer", { className: "login-foot" },
-        h("p", null, "Demonstração: nenhum dado é enviado. Apenas o nome fica salvo neste navegador, para saudar você. CPF e senha não são guardados."),
+        h("p", null, g ? "Demonstração: qualquer e-mail válido e senha com 6+ caracteres. Nada é enviado nem guardado. Na versão real, o acesso usaria o login institucional (SSO)." : "Demonstração: nenhum dado é enviado. Apenas o nome fica salvo neste navegador, para saudar você. CPF e senha não são guardados."),
         h("p", null, "Versão de demonstração"))),
     h("aside", { className: "login-art", "aria-hidden": true },
       h("svg", { viewBox: "0 0 320 240", width: "100%", style: { maxWidth: 420 } },
@@ -220,7 +247,7 @@ function App(){
   const [user, setUser] = useState(() => { try { return localStorage.getItem("pda_nome") || ""; } catch (e) { return ""; } });
   const enter = n => { try { localStorage.setItem("pda_nome", n); } catch (e) {} setUser(n); };
   const leave = () => { try { localStorage.removeItem("pda_nome"); } catch (e) {} setUser(""); };
-  return user ? h(Portal, { user, onLogout: leave }) : h(Login, { onEnter: enter });
+  return user && location.hash !== "#gestao" ? h(Portal, { user, onLogout: leave }) : h(Login, { onEnter: enter });
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));

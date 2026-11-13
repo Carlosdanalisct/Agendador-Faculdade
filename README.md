@@ -37,7 +37,7 @@ O React é carregado por CDN (cdnjs), então é preciso internet para o portal a
 2. Clique em **Agendamento** no menu lateral.
 3. Em **Atendimentos**, busque ou selecione o curso, escolha o coordenador, o dia e o horário, e preencha o motivo.
 4. Acompanhe em **Histórico e protocolos**. Dúvidas sobre o setor correto: **Chatbot**.
-5. Gestão (demonstração): link **Acesso da gestão** no rodapé do agendamento.
+5. Coordenação (demonstração): na tela de login do portal, escolha **Sou coordenador**, informe qualquer e-mail válido e senha com 6+ caracteres e o perfil (Coordenador ou Administrador). Você vai direto para a gestão. Atalho: `index.html#gestao`.
 
 ## Documentação
 
