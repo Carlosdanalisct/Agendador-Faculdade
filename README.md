@@ -35,7 +35,7 @@ O React é carregado por CDN (cdnjs), então é preciso internet para o portal a
 
 ## Fluxo de uso
 
-1. No portal, informe **nome**, **CPF** (válido) e **senha** (6+ caracteres). O nome vira a saudação "Olá, *nome*".
+1. No portal, informe **nome**, **CPF** (qualquer número com 11 dígitos, na demonstração) e **senha** (6+ caracteres). O nome vira a saudação "Olá, *nome*".
 2. Clique em **Agendamento** no menu lateral.
 3. Em **Agendar atendimento**, escolha o assunto. Ajuste de grade e reprovação mostram uma orientação que muitas vezes resolve sem agendar; assuntos financeiros e de documentos são encaminhados ao setor certo. Se for com a coordenação, escolha o coordenador, o dia e um horário do tamanho do assunto (15 ou 45 minutos).
 4. Acompanhe em **Histórico e protocolos**. Dúvidas sobre o setor correto: **Chatbot**. Se o envio de e-mails estiver ligado (veja [`integracoes/gmail/LEIA-ME.md`](integracoes/gmail/LEIA-ME.md)), o aluno recebe a confirmação no Gmail e um lembrete às 7h do dia do atendimento; o coordenador recebe o resumo dos atendimentos do dia.
