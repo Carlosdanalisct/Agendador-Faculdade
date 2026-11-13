@@ -4,6 +4,6 @@
    - EMAIL_API: a URL do "App da Web" do Google Apps Script (termina em /exec)
    - EMAIL_TOKEN: a mesma senha definida em CONFIG.TOKEN no Code.gs        */
 window.CFG = {
-  EMAIL_API: '',
-  EMAIL_TOKEN: 'troque-esta-senha'
+  EMAIL_API: 'https://script.google.com/macros/s/AKfycbwWgVOBoVdIGhP67465CemigzNv1JjUWRCC-1AI6wI2lNtrTk0J5xAa1jSOo-y3Q7oZ/exec',
+  EMAIL_TOKEN: 'agenda2026'
 };
