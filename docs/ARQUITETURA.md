@@ -29,7 +29,9 @@ Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação 
 
 **Ambientes** (`S.env`): `aluno` (padrão) e `ges` (gestão). A gestão abre pelo login do portal (aba *Sou coordenador*), que leva a `agendamento/index.html?gestao=coord` ou `?gestao=adm`. Com esse parâmetro a página já começa no Dashboard, inclusive ao recarregar. *Sair* e o link *Acesso da coordenação* do rodapé voltam para `index.html#gestao`.
 
-**Telas do aluno** (menu `STU`): `home` Início · `busca` Atendimentos · `perfil` · `agenda` · `form` · `conf` · `hist` Histórico e protocolos · `det` · `notif` · `chat`.
+**Telas do aluno** (menu `STU`): `home` Início · `tri` Agendar atendimento (triagem por assunto) · `faq` orientação na hora · `enc` encaminhamento a outro setor · `busca` coordenadores · `perfil` · `agenda` · `form` · `conf` · `hist` Histórico e protocolos · `det` · `notif` · `chat`.
+
+**Triagem** (veja `docs/CHATBOT.md`): o aluno escolhe o assunto em `tri`. Ajuste de grade e reprovação abrem `faq`, que pergunta "Isso resolveu?" (soma em `TRI.res`). Financeiro e documentos abrem `enc` (soma em `TRI.enc`). Os demais seguem para o agendamento, com a duração do assunto: 15 minutos, ou 45 para análise curricular. Os horários saem de `SLOTS(duração)` (09h–12h e 14h–17h), e `occ()` checa sobreposição considerando a duração de cada agendamento.
 
 **Telas da gestão** (`GES` e `ADM`): `dash`, `ag`, `min`, `salas`, `prot`, `rel`, `perf`, `coord`, `cur`, `perm`, `cfg`.
 
@@ -40,7 +42,9 @@ Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação 
 |---|---|
 | `CO0` / `CO` | Coordenadores (id, nome, cargo, cursos, dias, sala, local) |
 | `CRS` | Lista de cursos, gerada a partir de `CO0` |
-| `CATS` | Categorias de motivo do agendamento |
+| `CATS` / `AS` | Motivos do agendamento e assuntos da triagem (setor, duração, se tem orientação) |
+| `FQ` | Textos da orientação na hora (ajuste de grade, reprovação) |
+| `TRI` | Contadores da triagem: resolvidos sem agendamento e encaminhados |
 | `A` | Agendamentos de exemplo |
 | `P` | Protocolos de exemplo |
 
