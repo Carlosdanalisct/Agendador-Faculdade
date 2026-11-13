@@ -1,22 +1,28 @@
 # Chatbot de orientação por setor
 
+> Este é o chatbot **atual, por palavras-chave**. Para a versão com IA, veja [`CHAT-IA.md`](CHAT-IA.md).
+
 Objetivo: evitar encaminhamentos errados, explicando se o assunto é da Coordenação Acadêmica ou de outro setor **antes** do agendamento.
 
 ## Setores
 | Setor | Responsável por |
 |---|---|
-| Coordenação Acadêmica | Curso, professores, disciplinas, grade curricular, notas, faltas, reprovações e questões acadêmicas |
-| Secretaria Acadêmica | Documentos, histórico escolar, declaração de matrícula, certificados, trancamento e afastamento |
-| Financeiro | Boletos, mensalidades, cobranças, bolsas, convênios, descontos e problemas financeiros |
+| Coordenação Acadêmica | Ajuste e aceite de grade, disciplinas, professores, notas, faltas, presença, reprovações e análise curricular |
+| Secretaria Acadêmica | Documentos, histórico escolar, declaração de matrícula, certificados, trancamento e afastamento por longo período (por exemplo, por saúde) |
+| Financeiro | Boletos, mensalidades, valores, bolsas, convênios, descontos e o custo de refazer disciplinas |
 
-**Regra fixa:** a Coordenação não resolve questões financeiras, não emite documentos e não define valores de mensalidade nem descontos. Esse lembrete aparece nas respostas.
+Os textos ficam em `DS` (descrições) e `NM` (nomes) no `script.js`.
+
+**Regra fixa:** a Coordenação não resolve questões financeiras, não emite documentos e não define valores de mensalidade nem descontos. Esse aviso aparece na tela do chatbot; nas respostas sobre o Financeiro, o chatbot lembra que a coordenação não tem acesso aos dados financeiros (LGPD).
 
 ## Como decide
-O texto do aluno é normalizado (sem acento, minúsculas) e comparado com palavras-chave de cada setor (`SET` em `script.js`):
-- 1 setor encontrado, Coordenação → orienta a agendar.
-- 1 setor encontrado, outro → diz que não é da Coordenação e indica o setor.
-- Mais de um setor → separa cada parte e indica quem resolve.
-- Nenhum → mostra o resumo dos três setores e pede mais detalhes.
+O texto do aluno é normalizado (sem acento, minúsculas) por `N_()` e comparado com palavras-chave de cada setor (`SET`, via `HIT()`). O assunto da coordenação vem de `SUBK`. Tudo acontece em `ask()`:
+- 1 setor, Coordenação → explica e mostra um botão: **Ver orientação** (ajuste de grade, reprovação) ou **Agendar** (demais assuntos), que chama `esc_(assunto)`.
+- 1 setor, outro → diz que não é da Coordenação, indica o setor, mostra **Ver como resolver** (tela de encaminhamento) e soma o contador de encaminhados.
+- Mais de um setor → separa cada parte e mostra o botão da parte acadêmica.
+- Nenhum → tenta as respostas de `FAQ` (como agendar, sala, cancelar, protocolo); se não achar, mostra o resumo dos três setores.
+
+As perguntas prontas (botões abaixo da conversa) ficam na tela `chat` de `Sx()`.
 
 A comparação usa o **início** das palavras (ex.: `falt` pega "falta" e "faltas").
 
@@ -37,4 +43,4 @@ A triagem foi desenhada a partir de uma entrevista com a coordenação de um dos
 - Hoje, quando o aluno chega ao setor errado, o redirecionamento é feito um a um, na conversa.
 
 ## Limite
-É um sistema de palavras-chave, não uma IA. Frases sem essas palavras caem na resposta "não consegui identificar".
+É um sistema de palavras-chave, não uma IA. Frases sem essas palavras (por exemplo "não tô vendo a matéria no portal") caem na resposta "não consegui identificar". A tabela de testes em [`CHAT-IA.md`](CHAT-IA.md) mostra onde ele acerta e onde falha.

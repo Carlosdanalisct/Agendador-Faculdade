@@ -1,18 +1,23 @@
 /* ==========================================================
-   agendamento/script.js  |  Portal de Agendamento Acadêmico
-   JavaScript puro (sem framework). Dados FICTÍCIOS em memória.
-   Mapa do arquivo:
-   - CO0 / CO / CRS ....... coordenadores e cursos (EDITE AQUI)
-   - A, P, N .............. agendamentos, protocolos, contador
-   - S .................... estado da tela (ambiente, página, filtros)
-   - go() / R() ........... navegação e renderização (innerHTML)
-   - páginas do aluno ..... home, busca, perfil, agenda, form, hist, chat
-   - páginas da gestão .... dash, ag, min, salas, rel, coord, cur, perm
-   - chatbot .............. SET, NM, DS, ask(): orienta o setor correto
-   - conf17 / priv / termos / reemb: conformidade e textos legais
-   Persistência (só neste navegador): 'pda_nome' (nome do login),
-   'pda_demo' (agendamentos/protocolos da demonstração) e 'pda_ck'
-   (escolha do aviso de cookies). "Reiniciar demonstração" limpa 'pda_demo'.
+   agendamento/script.js  |  Módulo de Agendamento Acadêmico
+   JavaScript puro, sem build. Documentação: docs/ARQUITETURA.md
+   Mapa do arquivo (em ordem):
+   - utilitários .......... $, T (hoje), F, iso, DR, E (escape de HTML), MES
+   - dados de base ........ CO0/CO/CRS (coordenadores e cursos, EDITE AQUI),
+                            CATS/AS (assuntos), A (agendamentos),
+                            P (solicitações), NT (avisos), N (protocolos)
+   - e-mails .............. CFG (config.js), envia() -> Google Apps Script
+   - persistência ......... TRI, salva(), carregamento, rst()
+   - estado e horários .... S, ?gestao=, occ() (conflitos), SLOTS()
+   - interface ............ tt, mo/cm, go() (navega e salva), R() (desenha)
+   - telas do aluno ....... Sx(p): home, tri, faq, enc, busca, perfil,
+                            agenda, form, conf, hist, det, prot, notif, chat...
+   - ações do aluno ....... sv (salvar), ics, cx (cancelar), ns (solicitação)
+   - chatbot e triagem .... SUBK, SET, HIT, FQ, esc_, av_, NM, DS, ask, cs
+   - gestão ............... RD, bars, G(p), dt_/up (status), ac_
+   Dados salvos só neste navegador (localStorage): 'pda_nome', 'pda_demo2',
+   'pda_email', 'pda_ck'. Banco de dados: docs/BANCO-DE-DADOS.md.
+   Chat com IA: docs/CHAT-IA.md.
    ========================================================== */
 const $=s=>document.querySelector(s),T=(d=>new Date(d.getFullYear(),d.getMonth(),d.getDate()))(new Date()),F=d=>d.toLocaleDateString('pt-BR');
 const iso=(y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;

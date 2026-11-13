@@ -1,7 +1,7 @@
 /* ==========================================================
    app.js  |  Portal do Aluno (React 18 via CDN, sem build)
    Usa React.createElement (h) em vez de JSX.
-   - Login ......... duas abas: Aluno (nome + CPF validado + senha; só o
+   - Login ......... duas abas: Aluno (nome + CPF com 11 números + senha; só o
                      nome é salvo em localStorage 'pda_nome') e Coordenação
                      (e-mail + senha + perfil). A Coordenação segue direto
                      para agendamento/index.html?gestao=coord|adm.

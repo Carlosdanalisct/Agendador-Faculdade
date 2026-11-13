@@ -69,6 +69,9 @@ Salve e envie ao GitHub. Em 1 a 3 minutos o site publicado passa a enviar e-mail
 - **"Não foi possível enviar o e-mail agora":** confira se `EMAIL_API` e `EMAIL_TOKEN` em `config.js` estão iguais aos do script, e se a URL abre no navegador.
 - **Mudou o `Code.gs` depois de publicar?** Vá em **Implantar → Gerenciar implantações → lápis (editar) → Versão: Nova versão → Implantar**. A URL continua a mesma.
 - **Os e-mails caíram no spam:** marque como "Não é spam" uma vez.
+- **"Ocorreu um erro desconhecido" no editor:** quase sempre são várias contas Google abertas no mesmo navegador. Use uma janela anônima só com a conta da planilha.
+- **A URL pede login do Google:** a implantação está com acesso restrito. Em **Gerenciar implantações → editar**, escolha **Quem pode acessar: Qualquer pessoa** e publique uma nova versão.
+- **Rodei `doPost` pelo editor e nada aconteceu:** é normal; essa função só funciona quando o site chama. Para testar pelo editor, use `testarEnvio`.
 
 ## Cuidados
 - A URL e a senha ficam visíveis no código do site, que é público. A proteção real é a lista `PERMITIDOS`.
