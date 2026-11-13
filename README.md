@@ -36,8 +36,8 @@ O React é carregado por CDN (cdnjs), então é preciso internet para o portal a
 1. No portal, informe **nome**, **CPF** (válido) e **senha** (6+ caracteres). O nome vira a saudação "Olá, *nome*".
 2. Clique em **Agendamento** no menu lateral.
 3. Em **Agendar atendimento**, escolha o assunto. Ajuste de grade e reprovação mostram uma orientação que muitas vezes resolve sem agendar; assuntos financeiros e de documentos são encaminhados ao setor certo. Se for com a coordenação, escolha o coordenador, o dia e um horário do tamanho do assunto (15 ou 45 minutos).
-4. Acompanhe em **Histórico e protocolos**. Dúvidas sobre o setor correto: **Chatbot**.
-5. Coordenação (demonstração): na tela de login do portal, escolha **Sou coordenador**, informe qualquer e-mail válido e senha com 6+ caracteres e o perfil (Coordenador ou Administrador). Você vai direto para a gestão. Atalho: `index.html#gestao`.
+4. Acompanhe em **Histórico e protocolos**. Dúvidas sobre o setor correto: **Chatbot**. Em **Notificações** ficam os e-mails do agendamento (simulação): confirmação, aviso de alteração ou cancelamento e o **lembrete às 7h do dia do atendimento**. Nenhum e-mail é enviado de verdade.
+5. Coordenação (demonstração): na tela de login do portal, escolha **Sou coordenador**, informe qualquer e-mail válido e senha com 6+ caracteres e o perfil (Coordenador ou Administrador). Você vai direto para a gestão. Atalho: `index.html#gestao`. Na gestão, **Agenda no Outlook** mostra a semana do coordenador com os atendimentos ao lado das reuniões (simulação, sem acessar nenhuma conta); os horários das reuniões ficam bloqueados para os alunos.
 
 ## Documentação
 

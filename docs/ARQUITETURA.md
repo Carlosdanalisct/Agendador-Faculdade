@@ -33,7 +33,7 @@ Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação 
 
 **Triagem** (veja `docs/CHATBOT.md`): o aluno escolhe o assunto em `tri`. Ajuste de grade e reprovação abrem `faq`, que pergunta "Isso resolveu?" (soma em `TRI.res`). Financeiro e documentos abrem `enc` (soma em `TRI.enc`). Os demais seguem para o agendamento, com a duração do assunto: 15 minutos, ou 45 para análise curricular. Os horários saem de `SLOTS(duração)` (09h–12h e 14h–17h), e `occ()` checa sobreposição considerando a duração de cada agendamento.
 
-**Telas da gestão** (`GES` e `ADM`): `dash`, `ag`, `min`, `salas`, `prot`, `rel`, `perf`, `coord`, `cur`, `perm`, `cfg`.
+**Telas da gestão** (`GES` e `ADM`): `dash`, `ag`, `out` (Agenda no Outlook, simulação), `min`, `salas`, `prot`, `rel`, `perf`, `coord`, `cur`, `perm`, `cfg`.
 
 **Páginas legais:** `priv`, `termos`, `reemb`, `conf17`.
 
@@ -45,6 +45,8 @@ Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação 
 | `CATS` / `AS` | Motivos do agendamento e assuntos da triagem (setor, duração, se tem orientação) |
 | `FQ` | Textos da orientação na hora (ajuste de grade, reprovação) |
 | `TRI` | Contadores da triagem: resolvidos sem agendamento e encaminhados |
+| `EM` | E-mails **simulados** (tipo + protocolo). O texto é montado na hora por `MT()`; o lembrete chega às 7h do dia do atendimento (`EQ()`), acompanha alterações e não é enviado se o atendimento for cancelado |
+| `OBUSY` | Compromissos fictícios do coordenador na "agenda do Outlook" simulada; `occ()` bloqueia esses horários para os alunos |
 | `A` | Agendamentos de exemplo |
 | `P` | Protocolos de exemplo |
 
