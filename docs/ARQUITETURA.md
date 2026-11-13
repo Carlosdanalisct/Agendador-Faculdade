@@ -22,6 +22,8 @@ agendamento/index.html ──carrega──> style.css, script.js
 
 Estado: `useState`. Persistência: apenas `localStorage['pda_nome']`.
 
+No agendamento, `localStorage['pda_demo']` guarda agendamentos, protocolos e coordenadores da demonstração (salvo a cada navegação em `go()`), e `localStorage['pda_ck']` guarda a escolha do aviso de cookies. A confirmação oferece **Adicionar à minha agenda** (arquivo `.ics`, função `ics()`).
+
 ## Agendamento (`script.js`, JavaScript puro)
 Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação usa `go(página, id)`, que atualiza o estado `S` e redesenha.
 

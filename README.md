@@ -56,7 +56,7 @@ HTML5 · CSS3 (mobile first, variáveis, modo escuro) · JavaScript · React 18 
 ## Limitações conhecidas
 
 - Sem autenticação real: o login é só de demonstração.
-- Os agendamentos somem ao recarregar a página.
+- Os agendamentos ficam salvos só neste navegador (localStorage). Use **Reiniciar demonstração** no rodapé para voltar aos dados de exemplo.
 - Salas, blocos e dias de atendimento dos coordenadores são exemplos.
 - Logos e imagens oficiais da instituição **não** estão incluídos (direitos autorais).
 

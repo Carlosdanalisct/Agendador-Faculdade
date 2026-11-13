@@ -20,6 +20,6 @@ Abrir o `index.html` com duplo clique costuma funcionar, mas o Live Server é ma
 | Página em branco | Sem internet (React vem do CDN) |
 | Sem estilo ou erro 404 no botão Agendamento | Arquivos dentro de uma pasta extra: `index.html` precisa estar na raiz |
 | Nome não aparece no agendamento | Abriu o agendamento direto, sem passar pelo login do portal |
-| Dados sumiram | Normal: ficam só em memória; recarregar zera |
+| Dados sumiram | Ficam só no navegador usado; outro navegador ou janela anônima começa do zero. **Reiniciar demonstração** (rodapé) volta aos dados de exemplo |
 
 Não renomeie os arquivos sem ajustar os links: `index.html` carrega `style.css` e `app.js`; o portal abre `agendamento/index.html`; o agendamento volta para `../index.html`.
