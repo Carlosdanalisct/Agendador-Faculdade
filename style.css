@@ -133,3 +133,6 @@ a.card{color:inherit;text-decoration:none;cursor:pointer}
 .quick .card.hl{box-shadow:inset 0 0 0 2px var(--blue),0 1px 4px rgba(20,40,80,.08)}
 .quick .card.hl .t{color:var(--blue);font-weight:600}
 .quick .card.hl{grid-column:1/-1}
+/* Contraste AA (4,5:1): contador de notificações e chamada do banner */
+.badge{background:#c2410c}
+.pill{background:#c2410c}

@@ -150,3 +150,7 @@ input,select,textarea{font-size:16px}
 /* Chatbot: sugestões quebram linha sem espremer o texto */
 .qs{display:flex;flex-wrap:wrap;gap:8px}
 .qs .btn{flex:0 1 auto;min-width:0;white-space:normal;text-align:left}
+/* Contraste: item ativo do menu e links legíveis também no modo escuro */
+.side a[aria-current]{color:var(--od)!important}
+main a:not(.btn),footer a,#ck a{color:var(--o)}
+:root{--ok:#166B34}/* verde um pouco mais escuro: etiquetas com contraste AA (4,5:1) */
