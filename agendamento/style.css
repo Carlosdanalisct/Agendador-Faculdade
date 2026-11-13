@@ -225,3 +225,32 @@ footer a{color:var(--o)}
 .info.warn{background:var(--warnb)}
 .kv{display:flex;gap:40px;flex-wrap:wrap}
 .kv .k{margin-bottom:2px}
+
+/* 14) E-mails e agenda do Outlook (simulação) */
+.task.novo .t{font-weight:600}
+.ov .c:has(.mail){max-width:640px}
+.mail .info{margin-bottom:14px}
+.mail .mh{border-bottom:1px solid var(--ln);padding-bottom:12px;margin-bottom:14px}
+.mail h2{font-size:18px;margin:0 0 6px}
+.mt{margin:12px 0;width:auto}
+.mt th{padding:6px 16px 6px 0;border:0;font-size:14px}
+.mt td{padding:6px 0;border:0}
+.mt tr:hover td{background:none}
+.ol{background:var(--sf);border-radius:8px;box-shadow:var(--sh);padding:16px;overflow-x:auto}
+.og{display:grid;grid-template-columns:52px repeat(5,minmax(120px,1fr));min-width:680px}
+.ot{padding-top:40px;font-size:12px;color:var(--mu);text-align:right;padding-right:8px}
+.ot div{transform:translateY(-8px)}
+.oc{border-left:1px solid var(--ln)}
+.oh{height:40px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;color:var(--mu);border-bottom:1px solid var(--ln);text-transform:capitalize}
+.oh b{font-weight:500;color:var(--tx);width:26px;height:26px;display:grid;place-items:center;border-radius:50%}
+.oh.hoje{color:var(--o)}.oh.hoje b{background:var(--fill);color:#fff}
+.ob{position:relative;background-image:linear-gradient(to bottom,var(--ln) 1px,transparent 1px)}
+.ev.cur{padding-top:3px}.ev.cur span{display:none}
+.ev{position:absolute;left:3px;right:3px;border-radius:4px;padding:2px 6px;font-family:inherit;font-size:12px;line-height:1.3;overflow:hidden;text-align:left;border:0;border-left:3px solid;color:var(--tx)}
+.ev b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mu)}
+.ev.ok{background:var(--hover);border-color:var(--fill);cursor:pointer}
+.ev.pen{background:var(--sf);border:1px dashed var(--o);border-left:3px solid var(--o);cursor:pointer}
+.ev.ok:hover,.ev.pen:hover{box-shadow:var(--sh2)}
+.ev.reu{background:var(--soft);border-color:var(--mu);color:var(--mu)}
+.leg i.pe{border:1px dashed var(--o);background:var(--sf)}
