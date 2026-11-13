@@ -186,7 +186,8 @@ function Login({ onEnter }){
     }
     const n = nome.trim().replace(/\s+/g, " "), x = {};
     if (n.length < 2) x.nome = "Informe como podemos chamar você.";
-    if (!validCpf(cpf)) x.cpf = "Informe um CPF válido, com 11 números.";
+    /* Demonstração: aceita qualquer CPF com 11 números. Para exigir um CPF real, troque por: if (!validCpf(cpf)) */
+    if (cpf.replace(/\D/g, "").length !== 11) x.cpf = "Informe os 11 números do CPF.";
     if (senha.length < 6) x.senha = "A senha deve ter pelo menos 6 caracteres.";
     setErr(x);
     if (Object.keys(x).length) return;

@@ -18,7 +18,7 @@ agendamento/index.html ──carrega──> style.css, script.js
 | `Portal` | Página inicial; mostra "Olá, *nome*" |
 | `Topbar`, `Sidebar` | Barra superior (botão Sair) e menu lateral |
 | `Quick`, `Task`, `Banner` | Cards de acesso rápido, tarefas e banner |
-| `validCpf`, `maskCpf` | Validação por dígitos verificadores e máscara |
+| `validCpf`, `maskCpf` | Máscara do CPF. Na demonstração o login aceita qualquer CPF com 11 números; `validCpf` (dígitos verificadores) fica disponível para exigir um CPF real |
 
 Estado: `useState`. Persistência: apenas `localStorage['pda_nome']`.
 
