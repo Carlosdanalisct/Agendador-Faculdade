@@ -45,9 +45,11 @@ Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação 
 | `P` | Protocolos de exemplo |
 
 ## Estilos
-- Variáveis de cor em `:root`; modo escuro por `prefers-color-scheme`.
-- **Mobile first**: regras base são do celular; `min-width` (640px, 900px) amplia o layout.
-- Alvos de toque de pelo menos 44px, fonte de 16px nos campos.
+- O agendamento usa a **mesma identidade do portal**: barra superior de 62px com logo, busca e notificações; menu lateral de 240px com os itens do portal e o submenu do Agendamento aberto; trilha de navegação ("Início › Agendamento › …"); cartões brancos com sombra leve; títulos de página discretos. A saudação grande ("Olá, nome") aparece só no Início, como no portal.
+- `agendamento/style.css` é organizado em 12 blocos numerados (cores, base, barra superior, menu, conteúdo, formulários, tabelas, calendário, chatbot, gestão, avisos, celular).
+- Variáveis de cor em `:root`; modo escuro por `prefers-color-scheme`. `--fill` é o azul dos botões preenchidos (mais forte no modo escuro, para o texto branco ter contraste).
+- No celular (até 760px) o menu lateral some, como no portal, e o submenu vira abas no topo.
+- Alvos de toque de pelo menos 44px, fonte de 16px nos campos, contraste mínimo de 4,5:1 nos dois modos.
 
 ## O que seria preciso para uso real
 Servidor e banco de dados, login institucional (SSO), envio de e-mails/notificações, controle de permissões no servidor, logs de auditoria e revisão jurídica.
