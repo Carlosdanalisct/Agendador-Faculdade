@@ -15,8 +15,11 @@ Exemplo:
 - `CRS` (lista de cursos do filtro) é gerada sozinha a partir de `CO0`.
 - Salas, blocos e dias atuais são **exemplos**.
 
-## Categorias de motivo
-Lista `CATS` em `script.js`.
+## Assuntos, motivos e duração
+- `CATS`: motivos que aparecem no formulário (só assuntos da coordenação).
+- `AS`: assuntos da triagem. Cada item tem setor (`coord`, `sec`, `fin`), duração em minutos (`min`) e se mostra orientação antes de agendar (`faq`).
+- `FQ`: textos da orientação na hora. Revise com a coordenação do seu curso.
+- Horário de atendimento: função `SLOTS` (hoje 09h–12h e 14h–17h).
 
 ## Nome da instituição e dados do rodapé
 Constante `foot` em `script.js`: razão social, CNPJ, endereço e encarregado de dados. Os valores atuais são fictícios.

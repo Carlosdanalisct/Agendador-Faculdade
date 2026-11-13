@@ -217,3 +217,11 @@ footer a{color:var(--o)}
   #toast{left:16px;right:16px;top:auto;bottom:16px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* 13) Triagem e orientação */
+.faq{margin:0;padding-left:20px}
+.faq li{margin:0 0 12px;line-height:1.5}
+.faq li:last-child{margin-bottom:0}
+.info.warn{background:var(--warnb)}
+.kv{display:flex;gap:40px;flex-wrap:wrap}
+.kv .k{margin-bottom:2px}

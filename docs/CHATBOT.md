@@ -21,11 +21,20 @@ O texto do aluno é normalizado (sem acento, minúsculas) e comparado com palavr
 A comparação usa o **início** das palavras (ex.: `falt` pega "falta" e "faltas").
 
 ## Incluir palavras
-Edite `SET` em `agendamento/script.js`:
-```js
-const SET={coord:['curso','nota','falt', ...], sec:['document','tranc', ...], fin:['boleto','mensalidad', ...]};
-```
-Descrições e nomes dos setores ficam em `DS` e `NM`.
+Edite `agendamento/script.js`:
+- `SUBK`: palavras de cada assunto da coordenação (`grade`, `reprov`, `nota`, `analise`, `prof`). A lista `coord` de `SET` é montada a partir dela.
+- `SET.sec` e `SET.fin`: palavras da Secretaria e do Financeiro.
+- Descrições e nomes dos setores ficam em `DS` e `NM`.
+
+Quando o assunto é da coordenação, a resposta traz um botão que leva direto à orientação (ajuste de grade, reprovação) ou ao agendamento já com o assunto escolhido. O mesmo filtro (`av_`) avisa no formulário quando o aluno descreve algo do Financeiro ou da Secretaria.
+
+## Base: entrevista com a coordenação
+A triagem foi desenhada a partir de uma entrevista com a coordenação de um dos cursos:
+- Cerca de **70% dos atendimentos são ajuste de grade** feito errado pelo aluno, incluindo quem não deu o aceite da grade e quem quer se formar antes do tempo mínimo do curso.
+- A segunda dúvida mais comum é **reprovação**: como refazer e quanto custa (o custo é com o Financeiro).
+- A maioria se resolve em **cerca de 15 minutos**; análise curricular (aluno vindo de outra instituição) exige mais tempo.
+- A coordenação **não tem acesso a dados financeiros** (LGPD). O coordenador vê só o valor cheio do curso, sem bolsas, convênios ou desconto de pontualidade.
+- Hoje, quando o aluno chega ao setor errado, o redirecionamento é feito um a um, na conversa.
 
 ## Limite
 É um sistema de palavras-chave, não uma IA. Frases sem essas palavras caem na resposta "não consegui identificar".
