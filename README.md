@@ -1,0 +1,65 @@
+# Portal do Aluno + Agendamento Acadêmico (protótipo)
+
+Protótipo de dois sites que se conectam:
+
+1. **Portal do Aluno** (raiz): tela de login, página inicial e menu. Feito com **React**.
+2. **Agendamento Acadêmico** (`agendamento/`): o aluno escolhe o coordenador do curso, marca horário, acompanha protocolos e fala com um chatbot que indica o setor certo. Há também uma área de gestão para coordenadores e administradores. Feito com **JavaScript puro**.
+
+> **Aviso:** todos os dados são **fictícios** e ficam só na memória do navegador. Não há servidor nem banco de dados. Os textos legais são de demonstração e **precisam de revisão jurídica** antes de qualquer uso real.
+
+## Estrutura
+
+```
+portal-aluno-agendamento/
+├── index.html            Página do Portal do Aluno (precisa ficar na raiz)
+├── style.css             Estilos do portal (mobile first, modo escuro)
+├── app.js                Lógica em React: login e portal
+├── agendamento/
+│   ├── index.html        Página do agendamento
+│   ├── style.css         Estilos do agendamento
+│   └── script.js         Lógica: telas, chatbot, gestão, dados de exemplo
+├── docs/                 Documentação (veja abaixo)
+├── .gitignore
+└── README.md
+```
+
+## Como rodar
+
+- **Rápido:** abra a pasta no VS Code, instale a extensão **Live Server** e clique em *Open with Live Server* no `index.html`.
+- **Online:** publique no **GitHub Pages** (Settings → Pages → branch `main`, pasta `/ (root)`).
+- Detalhes em [`docs/COMO-RODAR.md`](docs/COMO-RODAR.md).
+
+O React é carregado por CDN (cdnjs), então é preciso internet para o portal abrir.
+
+## Fluxo de uso
+
+1. No portal, informe **nome**, **CPF** (válido) e **senha** (6+ caracteres). O nome vira a saudação "Olá, *nome*".
+2. Clique em **Agendamento** no menu lateral.
+3. Em **Atendimentos**, busque ou selecione o curso, escolha o coordenador, o dia e o horário, e preencha o motivo.
+4. Acompanhe em **Histórico e protocolos**. Dúvidas sobre o setor correto: **Chatbot**.
+5. Gestão (demonstração): link **Acesso da gestão** no rodapé do agendamento.
+
+## Documentação
+
+| Arquivo | Conteúdo |
+|---|---|
+| [`docs/COMO-RODAR.md`](docs/COMO-RODAR.md) | Rodar local, publicar no GitHub Pages, problemas comuns |
+| [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) | O que cada arquivo faz e como as telas se conectam |
+| [`docs/PERSONALIZAR.md`](docs/PERSONALIZAR.md) | Trocar coordenadores, cursos, salas e dias de atendimento |
+| [`docs/CHATBOT.md`](docs/CHATBOT.md) | Regras de orientação por setor e como incluir palavras |
+| [`docs/CONFORMIDADE.md`](docs/CONFORMIDADE.md) | As 17 diretrizes legais e de acessibilidade, e o que falta |
+
+## Tecnologias
+
+HTML5 · CSS3 (mobile first, variáveis, modo escuro) · JavaScript · React 18 (UMD, CDN)
+
+## Limitações conhecidas
+
+- Sem autenticação real: o login é só de demonstração.
+- Os agendamentos somem ao recarregar a página.
+- Salas, blocos e dias de atendimento dos coordenadores são exemplos.
+- Logos e imagens oficiais da instituição **não** estão incluídos (direitos autorais).
+
+## Licença
+
+Defina a licença antes de tornar o repositório público (por exemplo MIT, ou uso restrito à instituição).
