@@ -55,5 +55,8 @@ Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação 
 - No celular (até 760px) o menu lateral some, como no portal, e o submenu vira abas no topo.
 - Alvos de toque de pelo menos 44px, fonte de 16px nos campos, contraste mínimo de 4,5:1 nos dois modos.
 
+## E-mails (opcional)
+`agendamento/config.js` define `EMAIL_API` e `EMAIL_TOKEN`. Com `EMAIL_API` preenchido, `envia()` em `script.js` manda cada evento (novo, alterado, cancelado, confirmado, cancelado pela coordenação) ao Google Apps Script de `integracoes/gmail/Code.gs`. O script guarda o agendamento numa planilha, envia o e-mail ao aluno pelo Gmail e, todo dia às 7h, envia os lembretes do dia aos alunos e o resumo ao coordenador. Só recebe e-mail quem está na lista `PERMITIDOS`. Instalação: `integracoes/gmail/LEIA-ME.md`.
+
 ## O que seria preciso para uso real
 Servidor e banco de dados, login institucional (SSO), envio de e-mails/notificações, controle de permissões no servidor, logs de auditoria e revisão jurídica.

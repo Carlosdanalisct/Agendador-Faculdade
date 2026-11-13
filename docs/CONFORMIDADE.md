@@ -9,8 +9,8 @@ Situação do protótipo. **Não garante conformidade legal**: exige validação
 | 3 | Aviso de cookies | Banner com cookies essenciais; opcionais recusáveis |
 | 4 | Política de reembolso | Página (`reemb`): não há cobrança |
 | 5 | Formulários na LGPD | Finalidade informada e aceite explícito |
-| 6 | Só dados necessários | Categoria, motivo e observações; login guarda só o nome; agendamentos de demonstração e a escolha de cookies ficam só no navegador |
-| 7 | Scripts de tracking | Nenhum; fontes do sistema. Único recurso externo: React (cdnjs) |
+| 6 | Só dados necessários | Categoria, motivo e observações; login guarda só o nome; agendamentos de demonstração e a escolha de cookies ficam só no navegador; e-mail só se o aluno informar, para confirmação e lembrete |
+| 7 | Scripts de tracking | Nenhum; fontes do sistema. Recursos externos: React (cdnjs) e, se ligado, o envio de e-mails pelo Google Apps Script da equipe |
 | 8 | Acessibilidade | Rótulos, ARIA, estados que não dependem só de cor |
 | 9 | Alt nas imagens | Sem imagens de conteúdo; elementos decorativos com `aria-hidden` |
 | 10 | Contraste | Meta AA (4,5:1); validar com ferramenta WCAG |
