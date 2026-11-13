@@ -28,3 +28,7 @@ Situação do protótipo. **Não garante conformidade legal**: exige validação
 - Hospedar o React localmente se quiser eliminar o CDN.
 - Medir contraste e acessibilidade com ferramentas (ex.: Lighthouse, axe).
 - Implementar autenticação e armazenamento seguros no servidor.
+- **Banco de dados:** guardar só o necessário (nome, e-mail, assunto), sem CPF ou senha; validar no servidor; apagar dados de teste (veja [`BANCO-DE-DADOS.md`](BANCO-DE-DADOS.md)).
+- **Chat com IA:** avisar que a mensagem é processada por um serviço de IA, não enviar dados pessoais e manter as chaves fora do site (veja [`CHAT-IA.md`](CHAT-IA.md)).
+- **E-mails:** hoje saem de um Gmail da equipe, só para a lista `PERMITIDOS`. Depois da competição, arquivar a implantação do Apps Script e apagar a planilha.
+- **Nomes reais** de coordenadores só com autorização.
