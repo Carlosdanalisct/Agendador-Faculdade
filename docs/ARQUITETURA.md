@@ -27,7 +27,7 @@ No agendamento, `localStorage['pda_demo']` guarda agendamentos, protocolos e coo
 ## Agendamento (`script.js`, JavaScript puro)
 Cada tela é um texto HTML montado em `R()` e inserido em `#app`. A navegação usa `go(página, id)`, que atualiza o estado `S` e redesenha.
 
-**Ambientes** (`S.env`): `aluno` (padrão) e `ges` (gestão). A gestão abre pelo link *Acesso da gestão* no rodapé.
+**Ambientes** (`S.env`): `aluno` (padrão) e `ges` (gestão). A gestão abre pelo login do portal (aba *Sou coordenador*), que leva a `agendamento/index.html?gestao=coord` ou `?gestao=adm`. Com esse parâmetro a página já começa no Dashboard, inclusive ao recarregar. *Sair* e o link *Acesso da coordenação* do rodapé voltam para `index.html#gestao`.
 
 **Telas do aluno** (menu `STU`): `home` Início · `busca` Atendimentos · `perfil` · `agenda` · `form` · `conf` · `hist` Histórico e protocolos · `det` · `notif` · `chat`.
 
