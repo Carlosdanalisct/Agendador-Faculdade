@@ -77,8 +77,8 @@ function Sidebar({active, onSelect}){
 }
 
 /* Cards */
-const Quick = ({icon,title,sub,onClick}) =>
-  h("button", {className:"card row", onClick},
+const Quick = ({icon,title,sub,onClick,href,hl}) =>
+  h(href ? "a" : "button", {className:"card row"+(hl?" hl":""), onClick, href},
     h("span", {className:"ico"}, Icon(icon)),
     h("div", null, h("div", {className:"t"}, title), h("div", {className:"s"}, sub)));
 
@@ -132,7 +132,8 @@ function Portal({user, onLogout}){
               h("div", {className:"s"}, "Sua Grade de Horário já está confirmada para este semestre."))),
           h("h2", null, "Acesso rápido"),
           h("div", {className:"quick"},
-            h(Quick, {icon:"cal", title:"Quadro de Horários", sub:"Acompanhe o horário das suas aulas"}),
+            h(Quick, {icon:"cal", title:"Agendar atendimento", sub:"Marque horário com a coordenação do seu curso", href:"agendamento/index.html", hl:true}),
+            h(Quick, {icon:"clock", title:"Quadro de Horários", sub:"Acompanhe o horário das suas aulas"}),
             h(Quick, {icon:"bm", title:"Disciplinas e Notas", sub:"Acompanhe suas disciplinas e notas"}),
             h(Quick, {icon:"play", title:"Estudar", sub:"Acesse seu AVA"}),
             h(Quick, {icon:"head", title:"Dúvidas e Orientações", sub:"Acessar base de conhecimento"})),
