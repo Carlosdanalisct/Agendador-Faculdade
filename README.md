@@ -72,7 +72,7 @@ Sem etapa de build: são arquivos estáticos. O React vem por CDN (cdnjs).
 
 1. **Aluno:** no portal, informe nome, qualquer CPF com 11 números e senha com 6+ caracteres. Clique em **Agendar atendimento**.
 2. Escolha o **assunto**. Teste "Ajuste de grade" (orientação e "Isso resolveu?"), "Boleto" (encaminhamento) e "Análise curricular" (horário de 45 min).
-3. Escolha coordenador, dia e horário, preencha o motivo e o **e-mail** (precisa estar na lista `PERMITIDOS` do Apps Script) e confirme. A confirmação chega no Gmail.
+3. Escolha coordenador, dia e horário, preencha o motivo e o **e-mail** (qualquer e-mail: cada endereço recebe até 3 mensagens por dia na demonstração) e confirme. A confirmação chega por e-mail.
 4. **Coordenação:** em `#gestao`, escolha **Sou coordenador**, qualquer e-mail válido e senha com 6+ caracteres. Confirme o atendimento (o aluno recebe e-mail). No Dashboard, **"Enviar os lembretes de hoje agora"** dispara o lembrete do dia e o resumo do coordenador.
 5. **Reiniciar demonstração** (rodapé) volta aos dados de exemplo.
 
@@ -100,7 +100,7 @@ HTML5 · CSS3 (variáveis, modo escuro) · JavaScript puro · React 18 (UMD, CDN
 - **Dados por navegador:** agendamentos e protocolos ficam no `localStorage` de cada navegador. Aluno e coordenador só se "enxergam" no mesmo navegador. Resolver isso é o trabalho do banco de dados.
 - **Login demonstrativo:** não há autenticação real; a visão de coordenador é sempre a do coordenador de exemplo (id 1).
 - **Chatbot por palavras-chave:** frases fora do vocabulário caem em "não consegui identificar".
-- **E-mails:** só para endereços da lista `PERMITIDOS`; limite de 100 por dia (conta gratuita). A URL e a senha do serviço ficam públicas no `config.js`.
+- **E-mails:** qualquer pessoa pode testar com o próprio e-mail, com limites (3 por endereço e 50 no total por dia para quem não é da equipe; a equipe, na lista `PERMITIDOS`, não tem limite). A conta gratuita do Gmail envia até 100 por dia. A URL e a senha do serviço ficam públicas no `config.js`.
 - Salas, blocos, dias de atendimento e dados do rodapé são exemplos. Logos e imagens oficiais não estão incluídos.
 
 ## Licença

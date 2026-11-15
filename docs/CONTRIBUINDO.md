@@ -28,7 +28,7 @@ Não envie direto para a `main`.
 ## Segredos e dados pessoais
 
 - O repositório e o site são **públicos**. Tudo o que estiver no `config.js` ou no código pode ser lido por qualquer pessoa.
-- O `EMAIL_API` e o `EMAIL_TOKEN` do `config.js` estão públicos de propósito (o site precisa deles). A proteção é a lista `PERMITIDOS` do `Code.gs`.
+- O `EMAIL_API` e o `EMAIL_TOKEN` do `config.js` estão públicos de propósito (o site precisa deles). A proteção são os limites diários e a remoção de links do `Code.gs` (e `ABERTO: false`, que restringe à equipe).
 - **Chaves de IA, chaves de administrador de banco e senhas reais nunca vão para o repositório.** Guarde-as no servidor (por exemplo, nas Propriedades do script do Apps Script).
 - Use dados fictícios ou da equipe. **Não** coloque no repositório transcrições de entrevistas nem dados pessoais de professores ou alunos.
 

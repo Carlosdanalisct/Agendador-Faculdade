@@ -14,7 +14,7 @@ O GitHub Pages publica a branch `main` (pasta raiz). Cada merge atualiza o site 
 
 Abrir o `index.html` com duplo clique costuma funcionar, mas o Live Server é mais confiável para a navegação entre as duas páginas.
 
-**E-mails no computador:** o `agendamento/config.js` da `main` aponta para o Apps Script da equipe, então os e-mails também saem quando você testa localmente (só para a lista `PERMITIDOS`). Para testar sem enviar nada, deixe `EMAIL_API: ''` **na sua cópia local** e não envie essa mudança.
+**E-mails no computador:** o `agendamento/config.js` da `main` aponta para o Apps Script da equipe, então os e-mails também saem quando você testa localmente (e contam nos limites diários). Para testar sem enviar nada, deixe `EMAIL_API: ''` **na sua cópia local** e não envie essa mudança.
 
 ## Publicar em outro repositório (GitHub Pages)
 1. Repositório **público**, com os arquivos nas mesmas pastas. O `index.html` fica na **raiz**.
@@ -33,7 +33,8 @@ Passo a passo em [`integracoes/gmail/LEIA-ME.md`](../integracoes/gmail/LEIA-ME.m
 | Nome não aparece no agendamento | Abriu o agendamento direto, sem passar pelo login do portal |
 | Dados sumiram | Ficam só no navegador usado; outro navegador ou janela anônima começa do zero. **Reiniciar demonstração** (rodapé) volta aos dados de exemplo |
 | Aluno agendou no celular e não aparece para o coordenador | Esperado hoje: os dados são por navegador (veja [`BANCO-DE-DADOS.md`](BANCO-DE-DADOS.md)) |
-| "Este e-mail não está na lista permitida" | O e-mail não está em `PERMITIDOS`, ou a lista foi alterada sem publicar **Nova versão** no Apps Script |
+| "Este e-mail não está na lista permitida" | O modo aberto está desligado (`ABERTO: false`) e o e-mail não está em `PERMITIDOS`, ou a configuração foi alterada sem publicar **Nova versão** no Apps Script |
+| "Limite diário de e-mails da demonstração atingido" | O endereço já recebeu 3 mensagens hoje, ou o público já recebeu 50. Use um e-mail da equipe (sem limite) ou espere o dia seguinte |
 | "Não foi possível enviar o e-mail agora" | `EMAIL_API`/`EMAIL_TOKEN` diferentes dos do Apps Script, ou implantação sem acesso "Qualquer pessoa" |
 | Nenhum dia disponível hoje | Cada coordenador atende em dias fixos (lista `CO0` em `script.js`); escolha outro coordenador |
 | Login recusado | Nome com 2+ letras, CPF com 11 números e senha com 6+ caracteres |

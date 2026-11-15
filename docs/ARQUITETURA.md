@@ -118,7 +118,7 @@ Status de agendamento: `Pendente` → `Confirmado` → `Concluído`, ou `Cancela
 `rst()` (link "Reiniciar demonstração") apaga `pda_demo2` e recarrega.
 
 ## E-mails (opcional)
-Com `CFG.EMAIL_API` preenchido, `envia(acao, agendamento)` faz `POST` (corpo JSON em `text/plain`, para evitar a checagem prévia de CORS) ao Apps Script com `{token, acao, ag}`. Ações: `novo`, `alterado`, `cancelado`, `confirmado`, `cancelado_coord` e `lembretes_agora` (botão do dashboard). O `Code.gs` grava cada agendamento na aba **Agendamentos** da planilha, envia o e-mail ao aluno e, num gatilho diário às 7h, envia os lembretes do dia e o resumo ao coordenador. Só envia para a lista `PERMITIDOS`. Instalação: [`integracoes/gmail/LEIA-ME.md`](../integracoes/gmail/LEIA-ME.md).
+Com `CFG.EMAIL_API` preenchido, `envia(acao, agendamento)` faz `POST` (corpo JSON em `text/plain`, para evitar a checagem prévia de CORS) ao Apps Script com `{token, acao, ag}`. Ações: `novo`, `alterado`, `cancelado`, `confirmado`, `cancelado_coord` e `lembretes_agora` (botão do dashboard). O `Code.gs` grava cada agendamento na aba **Agendamentos** da planilha, envia o e-mail ao aluno e, num gatilho diário às 7h, envia os lembretes do dia e o resumo ao coordenador. Envia para a equipe (`PERMITIDOS`) sem limite e, com `ABERTO: true`, para qualquer e-mail com limites diários (3 por endereço, 50 no total, 10 usos do botão de lembretes), contados nas Propriedades do script. Links nos campos de texto são removidos. Instalação: [`integracoes/gmail/LEIA-ME.md`](../integracoes/gmail/LEIA-ME.md).
 
 ## Estilos
 - O agendamento usa a **mesma identidade do portal**: barra superior de 62px, menu lateral de 240px com o submenu do Agendamento aberto, trilha de navegação, cartões brancos com sombra leve.

@@ -27,7 +27,8 @@ Sem login real, a gestão sempre mostra o coordenador de **id 1** (filtros `x.co
 ## E-mails e lembretes
 No `Code.gs` (Apps Script), bloco `CONFIG`:
 - `COORDENADOR_EMAIL`: quem recebe o resumo do dia;
-- `PERMITIDOS`: e-mails que podem receber mensagens;
+- `PERMITIDOS`: e-mails da equipe (sem limite);
+- `ABERTO`: `true` aceita qualquer e-mail com os limites `LIMITE_POR_EMAIL_DIA` (3), `LIMITE_PUBLICO_DIA` (50) e `LIMITE_BOTAO_DIA` (10); `false` restringe à equipe;
 - `HORA_LEMBRETE`: hora do lembrete diário (padrão 7). Depois de mudar, rode `instalarLembreteDiario` de novo;
 - textos dos e-mails: objeto `MODELOS`.
 
