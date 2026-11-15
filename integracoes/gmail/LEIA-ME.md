@@ -27,7 +27,8 @@ Use uma conta Gmail da equipe. Os e-mails sairão dela.
 4. No começo do código, em `CONFIG`, ajuste:
    - `TOKEN`: invente uma senha simples, por exemplo `agenda2026`.
    - `COORDENADOR_EMAIL`: o e-mail que vai receber o resumo do dia. Use o de **alguém da equipe**, não o de um professor sem autorização.
-   - `PERMITIDOS`: os e-mails da equipe que vão testar, por exemplo `['carlos@gmail.com', 'maria@gmail.com']`. **Só esses recebem mensagens.** Isso impede que alguém use o site para mandar e-mails a estranhos.
+   - `PERMITIDOS`: os e-mails da **equipe**, por exemplo `['carlos@gmail.com', 'maria@gmail.com']`. Eles recebem mensagens sem limite.
+   - `ABERTO`: com `true` (padrão), **qualquer pessoa** pode testar com o próprio e-mail, com limites diários: `LIMITE_POR_EMAIL_DIA` (3 mensagens por endereço), `LIMITE_PUBLICO_DIA` (50 no total para quem não é da equipe) e `LIMITE_BOTAO_DIA` (10 usos do botão de lembretes). Assim sobra cota para a equipe dentro do limite de 100 por dia do Gmail. Com `false`, só a equipe recebe.
 5. Clique em **Salvar** (ícone de disquete).
 
 ### 2. Autorizar e testar o envio
@@ -60,12 +61,13 @@ Salve e envie ao GitHub. Em 1 a 3 minutos o site publicado passa a enviar e-mail
 ---
 
 ## Como mostrar na apresentação
-1. Agende um atendimento usando um e-mail da lista `PERMITIDOS`. A confirmação chega em segundos.
+1. Agende um atendimento com qualquer e-mail (na apresentação, prefira um da equipe, que não tem limite). A confirmação chega em segundos.
 2. Para mostrar o **lembrete do dia** sem esperar até as 7h: agende para **hoje** (se o coordenador atender no dia da apresentação). Depois, na visão do coordenador, em **Dashboard**, clique em **"Enviar os lembretes de hoje agora"**. Chegam o lembrete do aluno e o resumo do coordenador.
 3. Na planilha, a aba **Agendamentos** mostra tudo o que o site registrou.
 
 ## Se algo não funcionar
-- **"Este e-mail não está na lista permitida":** inclua o e-mail em `PERMITIDOS`, salve e publique uma nova versão (veja abaixo).
+- **"Este e-mail não está na lista permitida":** o modo aberto está desligado. Inclua o e-mail em `PERMITIDOS` ou use `ABERTO: true`, salve e publique uma nova versão (veja abaixo).
+- **"Limite diário de e-mails da demonstração atingido":** o endereço já recebeu 3 mensagens hoje ou o público já recebeu 50. A equipe não tem limite; os contadores zeram no dia seguinte.
 - **"Não foi possível enviar o e-mail agora":** confira se `EMAIL_API` e `EMAIL_TOKEN` em `config.js` estão iguais aos do script, e se a URL abre no navegador.
 - **Mudou o `Code.gs` depois de publicar?** Vá em **Implantar → Gerenciar implantações → lápis (editar) → Versão: Nova versão → Implantar**. A URL continua a mesma.
 - **Os e-mails caíram no spam:** marque como "Não é spam" uma vez.
@@ -74,6 +76,7 @@ Salve e envie ao GitHub. Em 1 a 3 minutos o site publicado passa a enviar e-mail
 - **Rodei `doPost` pelo editor e nada aconteceu:** é normal; essa função só funciona quando o site chama. Para testar pelo editor, use `testarEnvio`.
 
 ## Cuidados
-- A URL e a senha ficam visíveis no código do site, que é público. A proteção real é a lista `PERMITIDOS`.
+- A URL e a senha ficam visíveis no código do site, que é público. As proteções são os limites diários, a remoção de links dos campos de texto e, se precisar, `ABERTO: false`.
+- Se notar uso estranho (e-mails para desconhecidos na planilha), mude para `ABERTO: false` e publique uma nova versão.
 - A planilha guarda nome e e-mail dos testes. Depois da competição, apague a planilha e, em **Implantar → Gerenciar implantações**, arquive a implantação.
 - Use só e-mails da equipe, com o consentimento de cada pessoa.

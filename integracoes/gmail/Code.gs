@@ -20,10 +20,17 @@ const CONFIG = {
   TOKEN: 'troque-esta-senha',
   // Quem recebe o resumo do dia. Use o e-mail de alguém da equipe.
   COORDENADOR_EMAIL: 'coordenador.demo@gmail.com',
-  // Só estes e-mails podem receber mensagens (protege contra uso indevido,
-  // já que o endereço do serviço fica público no site). Use os da equipe.
-  // Lista vazia [] = aceita qualquer e-mail (não recomendado).
+  // E-mails da EQUIPE: sempre recebem, sem limite.
   PERMITIDOS: ['seuemail@gmail.com'],
+  // true = qualquer pessoa pode testar com o próprio e-mail, dentro dos limites
+  // abaixo. false = só os e-mails da equipe recebem mensagens.
+  ABERTO: true,
+  // Limites para e-mails fora da equipe (protegem a cota de 100/dia do Gmail
+  // e evitam que o serviço, cujo endereço é público, seja usado para spam).
+  LIMITE_POR_EMAIL_DIA: 3,
+  LIMITE_PUBLICO_DIA: 50,
+  // Quantas vezes por dia o botão "Enviar os lembretes de hoje agora" pode ser usado.
+  LIMITE_BOTAO_DIA: 10,
   HORA_LEMBRETE: 7,
   FUSO: 'America/Sao_Paulo',
   REMETENTE: 'Agendamento Acadêmico (demonstração)',
@@ -42,13 +49,20 @@ function doPost(e) {
     lock.waitLock(10000);
     const d = JSON.parse(e.postData.contents);
     if (d.token !== CONFIG.TOKEN) return resposta({ ok: false, erro: 'token' });
-    if (d.acao === 'lembretes_agora') return resposta(Object.assign({ ok: true }, enviarLembretesDoDia(true)));
-    const a = d.ag || {};
-    if (!a.protocolo || !/^AGD-\d{4}-\d+$/.test(a.protocolo)) return resposta({ ok: false, erro: 'dados' });
+    if (d.acao === 'lembretes_agora') {
+      if (!contador('b', null, CONFIG.LIMITE_BOTAO_DIA)) return resposta({ ok: false, erro: 'limite' });
+      return resposta(Object.assign({ ok: true }, enviarLembretesDoDia(true)));
+    }
+    const a = limpa(d.ag || {});
+    if (!/^AGD-\d{4}-\d+$/.test(a.protocolo) || !/^\d{4}-\d{2}-\d{2}$/.test(a.data) || !/^\d{2}:\d{2}$/.test(a.hora)) return resposta({ ok: false, erro: 'dados' });
     if (a.email && !emailValido(a.email)) return resposta({ ok: false, erro: 'email' });
-    if (a.email && !permitido(a.email)) return resposta({ ok: false, erro: 'nao_permitido' });
     salvar(d.acao, a);
-    if (a.email && MODELOS[d.acao]) emailAluno(d.acao, a);
+    if (a.email && MODELOS[d.acao]) {
+      const pode = podeEnviar(a.email);
+      if (pode !== 'ok') return resposta({ ok: false, erro: pode });
+      emailAluno(d.acao, a);
+      contarEnvio(a.email);
+    }
     return resposta({ ok: true });
   } catch (err) {
     return resposta({ ok: false, erro: String(err) });
@@ -131,13 +145,14 @@ function emailAluno(tipo, a) {
 
 /** Lembretes do dia. forcar=true reenvia mesmo se já enviado (botão de demonstração). */
 function enviarLembretesDoDia(forcar) {
-  const hoje = Utilities.formatDate(new Date(), CONFIG.FUSO, 'yyyy-MM-dd');
-  const doDia = linhas().filter(r => r.data === hoje && r.status !== 'Cancelado')
+  const dia = hoje();
+  const doDia = linhas().filter(r => r.data === dia && r.status !== 'Cancelado')
     .sort((x, y) => x.hora.localeCompare(y.hora));
   let alunos = 0;
   doDia.forEach(r => {
-    if ((forcar || !r.lembrete_enviado) && r.email && permitido(r.email)) {
+    if ((forcar || !r.lembrete_enviado) && r.email && podeEnviar(r.email) === 'ok') {
       emailAluno('lembrete', r);
+      contarEnvio(r.email);
       aba().getRange(r._linha, COLS.indexOf('lembrete_enviado') + 1)
         .setValue(Utilities.formatDate(new Date(), CONFIG.FUSO, 'dd/MM/yyyy HH:mm'));
       alunos++;
@@ -146,7 +161,7 @@ function enviarLembretesDoDia(forcar) {
   let coordenador = false;
   if (doDia.length && CONFIG.COORDENADOR_EMAIL) {
     const n = doDia.length;
-    const corpo = '<p>Bom dia!</p><p>Hoje, ' + dataBR(hoje) + ', você tem <b>' + n + ' atendimento' + (n > 1 ? 's' : '') + '</b>:</p>'
+    const corpo = '<p>Bom dia!</p><p>Hoje, ' + dataBR(dia) + ', você tem <b>' + n + ' atendimento' + (n > 1 ? 's' : '') + '</b>:</p>'
       + '<table style="border-collapse:collapse;font-size:14px">'
       + '<tr>' + ['Horário', 'Aluno', 'Assunto', 'Sala', 'Situação'].map(t => '<th style="text-align:left;padding:6px 12px 6px 0;color:#566170;font-weight:500">' + t + '</th>').join('') + '</tr>'
       + doDia.map(r => '<tr>' + [r.hora + ' (' + r.duracao + ' min)', r.aluno, r.assunto, r.sala, r.status]
@@ -179,8 +194,49 @@ function dataBR(iso) {
 }
 function primeiroNome(n) { return String(n || '').trim().split(/\s+/)[0] || 'aluno(a)'; }
 function emailValido(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e)); }
-function permitido(e) {
-  return !CONFIG.PERMITIDOS.length || CONFIG.PERMITIDOS.map(x => x.toLowerCase()).indexOf(String(e).toLowerCase()) >= 0;
+function equipe(e) {
+  return CONFIG.PERMITIDOS.map(x => String(x).toLowerCase().trim()).indexOf(String(e).toLowerCase().trim()) >= 0;
+}
+/** 'ok', 'nao_permitido' (ABERTO desligado) ou 'limite' (cota do dia atingida). */
+function podeEnviar(e) {
+  if (equipe(e)) return 'ok';
+  if (!CONFIG.ABERTO) return 'nao_permitido';
+  const p = PropertiesService.getScriptProperties(), d = hoje();
+  if (Number(p.getProperty('t:' + d) || 0) >= CONFIG.LIMITE_PUBLICO_DIA) return 'limite';
+  if (Number(p.getProperty('e:' + d + ':' + String(e).toLowerCase()) || 0) >= CONFIG.LIMITE_POR_EMAIL_DIA) return 'limite';
+  return 'ok';
+}
+function contarEnvio(e) {
+  if (equipe(e)) return;
+  contador('t', null, Infinity);
+  contador('e', String(e).toLowerCase(), Infinity);
+}
+/** Soma 1 no contador do dia; devolve false (sem somar) se já atingiu o limite. */
+function contador(tipo, chave, limite) {
+  const p = PropertiesService.getScriptProperties(), k = tipo + ':' + hoje() + (chave ? ':' + chave : '');
+  const n = Number(p.getProperty(k) || 0);
+  if (n >= limite) return false;
+  p.setProperty(k, String(n + 1));
+  return true;
+}
+/** Apaga contadores de dias anteriores (roda no gatilho diário). */
+function limparContadores() {
+  const p = PropertiesService.getScriptProperties(), d = hoje();
+  Object.keys(p.getProperties()).forEach(k => { if (/^[teb]:\d{4}-/.test(k) && k.indexOf(d) < 0) p.deleteProperty(k); });
+}
+function hoje() { return Utilities.formatDate(new Date(), CONFIG.FUSO, 'yyyy-MM-dd'); }
+/** Normaliza os dados vindos do site: tamanhos máximos e remoção de links. */
+function limpa(a) {
+  const t = (v, n) => String(v == null ? '' : v)
+    .replace(/(https?:\/\/|www\.)\S*/gi, '')
+    .replace(/\b[\w-]+\.(com|net|org|br|io|xyz|ly|me|info|site|online|app|link|click)\b\S*/gi, '')
+    .replace(/[<>]/g, '').trim().slice(0, n);
+  return {
+    protocolo: String(a.protocolo || ''), aluno: t(a.aluno, 60) || 'Aluno(a)', email: String(a.email || '').trim().slice(0, 120),
+    coordenador: t(a.coordenador, 80), data: String(a.data || ''), hora: String(a.hora || ''),
+    duracao: Math.min(120, Math.max(5, Number(a.duracao) || 15)), sala: t(a.sala, 40), local: t(a.local, 80),
+    assunto: t(a.assunto, 80), status: t(a.status, 20),
+  };
 }
 
 // ------------------- rodar uma vez, pelo editor ---------------------
@@ -194,4 +250,4 @@ function instalarLembreteDiario() {
   ScriptApp.newTrigger('lembreteAutomatico').timeBased().everyDays(1).atHour(CONFIG.HORA_LEMBRETE).inTimezone(CONFIG.FUSO).create();
 }
 /** Executado pelo gatilho diário. */
-function lembreteAutomatico() { enviarLembretesDoDia(false); }
+function lembreteAutomatico() { limparContadores(); enviarLembretesDoDia(false); }

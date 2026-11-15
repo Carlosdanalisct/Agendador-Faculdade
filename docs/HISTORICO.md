@@ -15,6 +15,7 @@ O que foi feito em cada etapa. Os detalhes de cada mudança estão nos pull requ
 | 8 | E-mails reais pelo Gmail | Google Apps Script + planilha: confirmação, alteração, cancelamento, confirmação pelo coordenador, lembrete diário às 7h, resumo do dia ao coordenador; lista `PERMITIDOS`; `config.js`; título "Agendamento realizado" |
 | 9 | CPF na demonstração | Login aceita qualquer CPF com 11 números |
 | 10 | Documentação para as próximas equipes | Guias de banco de dados e de chat com IA, contribuição, histórico; documentação geral atualizada |
+| 11 | E-mails para qualquer pessoa | Modo aberto no `Code.gs`: qualquer e-mail recebe, com limites diários (3 por endereço, 50 no total, 10 usos do botão), equipe sem limite, links removidos dos campos, validação de data e hora; aviso de limite no site
 
 ## Decisões que valem lembrar
 - **Simulação, sem custo e sem contas institucionais:** nada usa e-mail ou agenda da faculdade ou de professores; os e-mails saem de um Gmail da equipe.
