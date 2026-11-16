@@ -2,6 +2,30 @@
 
 Para a equipe que vai criar o banco de dados compartilhado.
 
+## Situação: implementado (planilha Google)
+
+A opção A abaixo está **em funcionamento**: a planilha do Apps Script é o banco compartilhado. A ideia e a primeira versão vieram da equipe do banco (branch `banco-planilha-wip`); a versão final corrigiu os problemas dela (página quebrada, envio duplicado, e-mails expostos no `listar`, colunas desalinhadas).
+
+**Como funciona**
+- **Uma chamada por evento:** `envia(acao, agendamento)` no site manda ao Apps Script; ele **grava na planilha** e envia o e-mail, se houver. Ações: `novo`, `alterado`, `cancelado`, `confirmado`, `concluido`, `cancelado_coord`.
+- **Conflito no servidor:** em `novo` e `alterado`, o `Code.gs` recusa (`erro: 'conflito'`) se outro agendamento ativo do mesmo coordenador se sobrepõe ao horário. O site avisa *"Esse horário acabou de ser ocupado por outra pessoa"* e volta à agenda já atualizada.
+- **Protocolo único:** `PROT()` gera `AGD-AAAA-` + 6 dígitos a partir do relógio; se repetir, o servidor responde `duplicado` e o site tenta outro.
+- **Leitura (`listar`):** devolve os agendamentos **de ontem em diante**, **sem e-mail, RA ou observações** e com **nome abreviado** ("Ana S."). O site junta com os dados locais em `sync()`.
+- **Quando o site atualiza:** ao abrir a página, ao entrar em Início, Histórico, Agenda, Agendamentos e Dashboard (no máximo a cada 15 s), ao voltar para a aba do navegador e no link **Atualizar** da gestão.
+- **Atualizações de outro aparelho** (por exemplo, o coordenador confirmando) usam o e-mail e o nome completo guardados na planilha; o aparelho do coordenador não recebe e-mails dos alunos.
+- **Planilha:** colunas lidas e gravadas **pelo nome**; as novas (`coordenador_id`, `ra`, `observacoes`) entram no fim. Planilhas antigas continuam funcionando.
+- **Sem conexão:** o agendamento fica salvo no aparelho e o site avisa.
+
+**Limites conhecidos (aceitos para a demonstração)**
+- Sem login real: o aluno vê como "seus" só os agendamentos feitos **naquele aparelho** (identificação pelo nome). O coordenador vê todos.
+- Solicitações (`P`) e contadores da triagem (`TRI`) continuam por aparelho.
+- Cada chamada leva 1 a 3 segundos (Apps Script).
+- Nomes abreviados e assuntos ficam acessíveis a quem tem a senha pública.
+
+Para publicar uma mudança no `Code.gs`: colar no Apps Script, salvar e **Implantar → Gerenciar implantações → editar → Nova versão**.
+
+O restante deste documento é o guia original de planejamento, mantido como referência para uma versão real.
+
 ## Objetivo
 
 Hoje cada navegador guarda os próprios dados (`localStorage`). Por isso:

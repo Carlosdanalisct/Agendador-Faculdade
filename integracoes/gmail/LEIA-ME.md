@@ -1,6 +1,6 @@
-# E-mails pelo Gmail (gratuito)
+# E-mails pelo Gmail e banco de dados (gratuito)
 
-Com isto ligado, o site envia e-mails de verdade, pela conta Gmail de vocês:
+Com isto ligado, a planilha vira o **banco de dados compartilhado** (agendamentos vistos em qualquer aparelho, sem horário marcado duas vezes) e o site envia e-mails de verdade, pela conta Gmail de vocês:
 
 | Quando | Quem recebe | E-mail |
 |---|---|---|

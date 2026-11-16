@@ -35,7 +35,7 @@ O sistema ataca isso com:
 
 | Tema | Guia |
 |---|---|
-| **Banco de dados compartilhado** (agendamentos visíveis em qualquer aparelho) | [`docs/BANCO-DE-DADOS.md`](docs/BANCO-DE-DADOS.md) |
+| **Banco de dados compartilhado**: ✅ feito na planilha Google (próximo passo: banco real com login institucional) | [`docs/BANCO-DE-DADOS.md`](docs/BANCO-DE-DADOS.md) |
 | **Chat com IA** (entender frases livres sem inventar regras) | [`docs/CHAT-IA.md`](docs/CHAT-IA.md) |
 
 Antes de começar, leia [`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md).
@@ -97,7 +97,7 @@ HTML5 · CSS3 (variáveis, modo escuro) · JavaScript puro · React 18 (UMD, CDN
 
 ## Limitações conhecidas
 
-- **Dados por navegador:** agendamentos e protocolos ficam no `localStorage` de cada navegador. Aluno e coordenador só se "enxergam" no mesmo navegador. Resolver isso é o trabalho do banco de dados.
+- **Banco de dados na planilha Google:** agendamentos são compartilhados entre aparelhos (o coordenador vê o que foi marcado em qualquer celular, e o mesmo horário não pode ser marcado duas vezes). Sem login real, cada aluno vê como seus só os agendamentos feitos no próprio aparelho; solicitações e contadores da triagem continuam por aparelho.
 - **Login demonstrativo:** não há autenticação real; a visão de coordenador é sempre a do coordenador de exemplo (id 1).
 - **Chatbot por palavras-chave:** frases fora do vocabulário caem em "não consegui identificar".
 - **E-mails:** qualquer pessoa pode testar com o próprio e-mail, com limites (3 por endereço e 50 no total por dia para quem não é da equipe; a equipe, na lista `PERMITIDOS`, não tem limite). A conta gratuita do Gmail envia até 100 por dia. A URL e a senha do serviço ficam públicas no `config.js`.
