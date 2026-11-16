@@ -38,8 +38,8 @@ const CONFIG = {
 // =====================================================================
 
 const ABA = 'Agendamentos';
-const COLS = ['protocolo', 'aluno', 'email', 'coordenador', 'data', 'hora', 'duracao',
-  'sala', 'local', 'assunto', 'status', 'lembrete_enviado', 'atualizado_em'];
+const COLS = ['protocolo', 'aluno', 'email', 'coordenador', 'coordenador_id', 'data', 'hora', 'duracao',
+  'sala', 'local', 'assunto', 'status', 'ra', 'observacoes', 'lembrete_enviado', 'atualizado_em'];
 const DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 
 /** Chamado pelo site (POST com JSON em texto). */
@@ -53,8 +53,15 @@ function doPost(e) {
       if (!contador('b', null, CONFIG.LIMITE_BOTAO_DIA)) return resposta({ ok: false, erro: 'limite' });
       return resposta(Object.assign({ ok: true }, enviarLembretesDoDia(true)));
     }
+    if (d.acao === 'listar') {
+      // Listar agendamentos com filtros
+      return resposta({ ok: true, agendamentos: listar(d.filtros) });
+    }
     const a = limpa(d.ag || {});
-    if (!/^AGD-\d{4}-\d+$/.test(a.protocolo) || !/^\d{4}-\d{2}-\d{2}$/.test(a.data) || !/^\d{2}:\d{2}$/.test(a.hora)) return resposta({ ok: false, erro: 'dados' });
+    // Validar protocolo só para operações de agendamento
+    if (['novo','alterado','cancelado','confirmado','cancelado_coord'].includes(d.acao)) {
+      if (!/^AGD-\d{4}-\d+$/.test(a.protocolo) || !/^\d{4}-\d{2}-\d{2}$/.test(a.data) || !/^\d{2}:\d{2}$/.test(a.hora)) return resposta({ ok: false, erro: 'dados' });
+    }
     if (a.email && !emailValido(a.email)) return resposta({ ok: false, erro: 'email' });
     salvar(d.acao, a);
     if (a.email && MODELOS[d.acao]) {
@@ -69,6 +76,21 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Lista agendamentos com filtros opcionais. */
+function listar(filtros) {
+  const lista = linhas();
+  return lista.filter(r => {
+    if (filtros) {
+      if (filtros.coordenador && String(r.coordenador_id) !== String(filtros.coordenador)) return false;
+      if (filtros.aluno && !r.aluno.toLowerCase().includes(filtros.aluno.toLowerCase())) return false;
+      if (filtros.de && r.data < filtros.de) return false;
+      if (filtros.ate && r.data > filtros.ate) return false;
+      if (filtros.status && r.status !== filtros.status) return false;
+    }
+    return true;
+  });
 }
 
 /** Permite testar no navegador se o serviço está no ar. */
@@ -94,9 +116,11 @@ function aba() {
 
 function linhas() {
   const v = aba().getDataRange().getValues();
+  // Mapeia colunas existentes (planilhas antigas podem ter menos colunas)
+  const colsAntigas = v[0] || [];
   return v.slice(1).map((r, i) => {
     const o = { _linha: i + 2 };
-    COLS.forEach((c, j) => { o[c] = String(r[j]); });
+    COLS.forEach((c, j) => { o[c] = String(r[j] || ''); });
     return o;
   });
 }
@@ -108,10 +132,20 @@ function salvar(acao, a) {
   const status = acao === 'cancelado' || acao === 'cancelado_coord' ? 'Cancelado'
     : acao === 'confirmado' ? 'Confirmado' : (a.status || 'Pendente');
   const lembrete = acao === 'alterado' ? '' : (atual ? atual.lembrete_enviado : '');
-  const valores = [a.protocolo, a.aluno, a.email || (atual && atual.email) || '', a.coordenador,
-    "'" + a.data, "'" + a.hora, a.duracao, a.sala, a.local, a.assunto, status, lembrete,
-    Utilities.formatDate(new Date(), CONFIG.FUSO, 'dd/MM/yyyy HH:mm')];
-  if (atual) sh.getRange(atual._linha, 1, 1, COLS.length).setValues([valores]);
+  
+  // Garante que todas as colunas existam na planilha
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(ABA);
+  const colsAtuais = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].length;
+  if (colsAtuais < COLS.length) {
+    sheet.getRange(1, colsAtuais + 1, 1, COLS.length - colsAtuais).setValues([COLS.slice(colsAtuais)]);
+  }
+  
+  const valores = [a.protocolo, a.aluno, a.email || (atual && atual.email) || '', a.coordenador || (atual && atual.coordenador) || '',
+    a.co || (atual && atual.coordenador_id) || '', "'" + a.data, "'" + a.hora, a.duracao, a.sala, a.local, a.assunto, status,
+    a.ra || (atual && atual.ra) || '', a.o || (atual && atual.observacoes) || '',
+    lembrete, Utilities.formatDate(new Date(), CONFIG.FUSO, 'dd/MM/yyyy HH:mm')];
+  if (atual) sh.getRange(atual._linha, 1, 1, valores.length).setValues([valores]);
   else sh.appendRow(valores);
 }
 
@@ -233,9 +267,9 @@ function limpa(a) {
     .replace(/[<>]/g, '').trim().slice(0, n);
   return {
     protocolo: String(a.protocolo || ''), aluno: t(a.aluno, 60) || 'Aluno(a)', email: String(a.email || '').trim().slice(0, 120),
-    coordenador: t(a.coordenador, 80), data: String(a.data || ''), hora: String(a.hora || ''),
+    coordenador: t(a.coordenador, 80), co: a.co, data: String(a.data || ''), hora: String(a.hora || ''),
     duracao: Math.min(120, Math.max(5, Number(a.duracao) || 15)), sala: t(a.sala, 40), local: t(a.local, 80),
-    assunto: t(a.assunto, 80), status: t(a.status, 20),
+    assunto: t(a.assunto, 80), status: t(a.status, 20), ra: t(a.ra, 20), o: t(a.o, 200),
   };
 }
 
