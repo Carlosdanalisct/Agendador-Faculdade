@@ -6,7 +6,6 @@
    - dados de base ........ CO0/CO/CRS (coordenadores e cursos, EDITE AQUI),
                             CATS/AS (assuntos), A (agendamentos),
                             P (solicitações), NT (avisos), N (protocolos)
-   - banco de dados ....... DB_* (camada de dados para planilha Google)
    - e-mails .............. CFG (config.js), envia() -> Google Apps Script
    - persistência ......... TRI, salva(), carregamento, rst()
    - estado e horários .... S, ?gestao=, occ() (conflitos), SLOTS()
@@ -16,7 +15,7 @@
    - ações do aluno ....... sv (salvar), ics, cx (cancelar), ns (solicitação)
    - chatbot e triagem .... SUBK, SET, HIT, FQ, esc_, av_, NM, DS, ask, cs
    - gestão ............... RD, bars, G(p), dt_/up (status), ac_
-   Dados salvos no navegador (localStorage) como backup: 'pda_nome', 'pda_demo2',
+   Dados salvos só neste navegador (localStorage): 'pda_nome', 'pda_demo2',
    'pda_email', 'pda_ck'. Banco de dados: docs/BANCO-DE-DADOS.md.
    Chat com IA: docs/CHAT-IA.md.
    ========================================================== */
@@ -37,54 +36,6 @@ const CO0=[
 [9,'Prof. João Lucas','Coordenador de Curso',['Educação Física'],[1,5],'Sala 109','Bloco B, 1º andar']];
 const CO=CO0.map(([id,n,r,cs,d,s,l])=>({id,n,r,cs,c:cs.join(', '),d,s,l}));
 const CRS=[...new Set(CO.flatMap(c=>c.cs))].sort((a,b)=>a.localeCompare(b,'pt'));
-
-/* ==========================================================
-   CAMADA DE DADOS (banco de dados na planilha Google)
-   docs/BANCO-DE-DADOS.md
-   ========================================================== */
-const DB_ON=!!CFG.DB_API; // true se há URL do banco na config
-const DB_API=CFG.DB_API||'',DB_TOKEN=CFG.DB_TOKEN||CFG.EMAIL_TOKEN||'';
-
-// Carrega agendamentos do banco (ou localStorage como backup)
-async function DB_carregarAgendamentos() {
-  if(!DB_ON)return; // usa só localStorage
-  try {
-    const r=await fetch(DB_API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:DB_TOKEN,acao:'listar',filtros:{}})});
-    const j=await r.json();
-    if(j.ok&&j.agendamentos){
-      // Converte formato da planilha para formato interno
-      const novos=j.agendamentos.map(a=>({
-        p:a.protocolo,a:a.aluno,ra:a.ra||'',c:'',co:Number(a.coordenador_id)||1,
-        dt:a.data.replace(/'/g,''),h:a.hora.replace(/'/g,''),s:a.sala||'',
-        m:a.assunto||'',dur:Number(a.duracao)||15,st:a.status||'Pendente',o:a.observacoes||''
-      }));
-      A.splice(0,A.length,...novos);
-      tt('Dados carregados do banco');
-    }
-  }catch(e){console.log('DB: falha ao carregar, usando localStorage');}
-}
-
-// Grava agendamento no banco
-async function DB_gravar(acao,ag){
-  if(!DB_ON)return null;
-  try{
-    const r=await fetch(DB_API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({token:DB_TOKEN,acao,ag})});
-    const j=await r.json();
-    return j;
-  }catch(e){return null;}
-}
-
-// Carrega dados ao iniciar (se banco disponível)
-if(DB_ON){DB_carregarAgendamentos();}
-
-// Recarrega dados ao navegar para telas que precisam dos agendamentos
-function DB_recarregarSeNecessario(pg){
-  if(!DB_ON)return;
-  if(['home','hist','dash','ag'].includes(pg)){
-    DB_carregarAgendamentos();
-  }
-}
-/* ========================================================== */
 
 const NOME=(()=>{try{return(localStorage.getItem('pda_nome')||'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';')}catch(e){return ''}})(),ME=NOME||'Marina Souza Lima (fictícia)',CATS=['Ajuste de grade e aceite','Reprovação e dependência','Notas, faltas e presença','Análise curricular e aproveitamento','Professores e disciplinas','Outro assunto acadêmico'];
 /* Assuntos da triagem, definidos a partir da entrevista com a coordenação:
@@ -130,7 +81,7 @@ try{if(localStorage.getItem('pda_ck'))$('#ck')?.remove()}catch(e){}
 function ck(v){try{localStorage.setItem('pda_ck',v?'essenciais':'recusados')}catch(e){}$('#ck')?.remove();tt(v?'Preferência salva: cookies essenciais.':'Cookies opcionais recusados.')}
 function mo(h){document.body.insertAdjacentHTML('beforeend',`<div class="ov" id="mo" role="dialog" aria-modal="true"><div class="c">${h}</div></div>`)}
 function cm(){$('#mo')?.remove()}
-function go(p,x){if(S.env=='aluno'&&p=='prot')p='hist';if(p=='busca'||p=='perfil'||p=='tri')S.re=null;if(p=='tri')S.as=null;/* novo agendamento cancela alteração pendente */S.pg=p;if(x!==undefined)S.x=x;cm();salva();DB_recarregarSeNecessario(p);R();window.scrollTo(0,0)}
+function go(p,x){if(S.env=='aluno'&&p=='prot')p='hist';if(p=='busca'||p=='perfil'||p=='tri')S.re=null;if(p=='tri')S.as=null;/* novo agendamento cancela alteração pendente */S.pg=p;if(x!==undefined)S.x=x;cm();salva();R();window.scrollTo(0,0)}
 const stT=s=>`<span class="tag ${s}">${s}</span>`;
 /* Ícones de traço, os mesmos do portal (app.js) */
 const IC={home:'M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z',book:'M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z',dollar:'M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',list:'M3 4h18v16H3zM7 9h10M7 13h10M7 17h6',clip:'M8 4h8v3H8zM6 5H4v16h16V5h-2M8 12h8M8 16h5',play:'M3 4h18v13H3zM10 8l5 3-5 3zM8 21h8',cal:'M4 5h16v16H4zM4 10h16M9 3v4M15 3v4M8 14h2M12 14h2M8 18h2M12 18h2',bell:'M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4',search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',clock:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',chev:'M9 5l7 7-7 7',doc:'M5 3h11l3 3v15H5zM9 11h6M9 15h6M9 7h3',user:'M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM4 21c0-4 3-6 8-6s8 2 8 6',chat:'M4 5h16v11H9l-5 4z',grid:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',room:'M4 21V4h12v17M16 8h4v13M9 12h2M2 21h20',chart:'M4 20V10M10 20V4M16 20v-7M2 20h20',gear:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12l2-1-2-4-2 1-2-1-1-2h-4l-1 2-2 1-2-1-2 4 2 1v2l-2 1 2 4 2-1 2 1 1 2h4l1-2 2-1 2 1 2-4-2-1z',lock:'M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4'};
@@ -190,13 +141,11 @@ function Sx(p){
 function x_(p){return p}document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.matches('[tabindex="0"]:not(button):not(input)'))e.target.click()});
 function tb(l,k){return `<div class="tw"><table><tr><th>Protocolo</th><th>Responsável</th><th>Data</th><th>Sala</th><th>Motivo</th><th>Status</th></tr>${l.map(x=>`<tr><td>${k?`<a href="#" onclick="go('det','${x.p}');return false">${x.p}</a>`:x.p}</td><td>${cd(x.co).n}</td><td>${F(new Date(x.dt+'T12:00'))} ${x.h}</td><td>${x.s}</td><td>${x.m}</td><td>${stT(x.st)}</td></tr>`).join('')||'<tr><td colspan="6">Nenhum agendamento neste filtro.</td></tr>'}</table></div>`}
 function sv(){const c=$('#ct').value,m=$('#mt').value.trim(),a=$('#ac').checked;$('#e1').textContent=c?'':'Escolha uma categoria.';$('#e2').textContent=m?'':'Descreva sua necessidade.';$('#e3').textContent=a?'':'É necessário concordar para continuar.';const em=$('#em').value.trim(),eok=em?EMV(em):!MAIL_ON;$('#e4').textContent=eok?'':em?'Informe um e-mail válido.':'Informe o e-mail para receber a confirmação e o lembrete.';if(!c||!m||!a||!eok)return;if(em)try{localStorage.setItem('pda_email',em)}catch(e){}const b=S.bk,ac=ASc(c),du=S.re?DUR():(ac?ac.min:15);if(!S.re&&ac)S.as=ac.k;if(!S.re&&occ(b.co,b.dt,b.h,du)){tt(du>15?'Esse assunto precisa de '+du+' minutos e o horário escolhido não comporta. Escolha outro.':'Horário acabou de ser ocupado. Escolha outro.');S.bk.h=null;return go('agenda',b.co)}
- if(S.re){const x=A.find(y=>y.p==S.re);x.dt=b.dt;x.h=b.h;x.o+=' Alterado pelo aluno.';if(em)x.em=em;envia('alterado',x).then(r=>r&&tt('Aviso de alteração enviado para '+x.em+'.'));if(DB_ON)DB_gravar('alterado',x);S.x=x.p;S.re2=1;S.re=null;go('conf')}
- else{const co=cd(b.co),x={p:'AGD-'+T.getFullYear()+'-'+(++N),a:ME,ra:'RA 000123 (fictício)',c:co.c,co:co.id,dt:b.dt,h:b.h,s:co.s,m:c,dur:du,st:'Pendente',o:''};if(em)x.em=em;if(DB_ON){DB_gravar('novo',x).then(r=>{if(!r||!r.ok){tt('Conflito de horário. Escolha outro.');N--;return S.bk.h=null}
- A.unshift(x);envia('novo',x).then(r=>r&&tt('E-mail de confirmação enviado para '+em+'.'));S.x=x.p;S.re2=0;go('conf')})}else{A.unshift(x);envia('novo',x).then(r=>r&&tt('E-mail de confirmação enviado para '+em+'.'));S.x=x.p;S.re2=0;go('conf')}}
+ if(S.re){const x=A.find(y=>y.p==S.re);x.dt=b.dt;x.h=b.h;x.o+=' Alterado pelo aluno.';if(em)x.em=em;envia('alterado',x).then(r=>r&&tt('Aviso de alteração enviado para '+x.em+'.'));S.x=x.p;S.re2=1;S.re=null}else{const co=cd(b.co),x={p:'AGD-'+T.getFullYear()+'-'+(++N),a:ME,ra:'RA 000123 (fictício)',c:co.c,co:co.id,dt:b.dt,h:b.h,s:co.s,m:c,dur:du,st:'Pendente',o:''};if(em)x.em=em;A.unshift(x);envia('novo',x).then(r=>r&&tt('E-mail de confirmação enviado para '+em+'.'));S.x=x.p;S.re2=0}S.bk=null;go('conf')}
 function ics(p){const x=A.find(y=>y.p==p),c=cd(x.co),z=n=>String(n).padStart(2,'0'),q=s=>String(s).replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(n)).replace(/[\\;,]/g,m=>'\\'+m),[hh,mm]=x.h.split(':').map(Number),d=x.dt.replace(/-/g,''),fi=new Date(2000,0,1,hh,mm+(x.dur||50)),now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
  const t=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Agendamento Academico//PT-BR','BEGIN:VEVENT','UID:'+x.p+'@agendamento.exemplo','DTSTAMP:'+now,'DTSTART:'+d+'T'+z(hh)+z(mm)+'00','DTEND:'+d+'T'+z(fi.getHours())+z(fi.getMinutes())+'00','SUMMARY:'+q('Atendimento com '+c.n),'LOCATION:'+q(x.s+' - '+c.l),'DESCRIPTION:'+q('Protocolo '+x.p+' - Motivo: '+x.m),'BEGIN:VALARM','TRIGGER;VALUE=DATE-TIME:'+new Date(x.dt+'T07:00').toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','ACTION:DISPLAY','DESCRIPTION:Seu atendimento é hoje','END:VALARM','BEGIN:VALARM','TRIGGER:-PT1H','ACTION:DISPLAY','DESCRIPTION:Lembrete do atendimento','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/calendar;charset=utf-8'}));a.download=x.p+'.ics';document.body.appendChild(a);a.click();a.remove();tt('Arquivo de agenda baixado: abra-o para adicionar ao seu calendário.')}
-function cx(p){mo(`<h2>Cancelar atendimento?</h2><p>Esta ação libera o horário na agenda e fica registrada no histórico.</p><button class="btn d" onclick="const x=A.find(y=>y.p=='${p}');x.st='Cancelado';envia('cancelado',x);if(DB_ON)DB_gravar('cancelado',x);cm();tt('Cancelamento registrado.');go('hist')">Confirmar cancelamento</button> <button class="btn s" onclick="cm()">Voltar</button>`)}
+function cx(p){mo(`<h2>Cancelar atendimento?</h2><p>Esta ação libera o horário na agenda e fica registrada no histórico.</p><button class="btn d" onclick="const x=A.find(y=>y.p=='${p}');x.st='Cancelado';envia('cancelado',x);cm();tt('Cancelamento registrado.');go('hist')">Confirmar cancelamento</button> <button class="btn s" onclick="cm()">Voltar</button>`)}
 function ns(){const a=$('#as').value.trim(),d=$('#ds').value.trim();$('#e1').textContent=a?'':'Informe o assunto.';$('#e2').textContent=d?'':'Descreva a solicitação.';if(!a||!d)return;const p='SOL-'+T.getFullYear()+'-'+(++N);P.unshift({p,as:E(a),dt:F(T),st:'Pendente',tl:[F(T).slice(0,5)+' — Solicitação aberta']});tt('Solicitação aberta: '+p);S.pq='';go('prot')}
 const FAQ={agend:'Escolha curso ou responsável, selecione um dia verde, um horário e preencha o formulário. Você recebe um protocolo.',sala:'A sala aparece no perfil do responsável e na confirmação. Ex. (fictício): Sala 203, Bloco B, 2º andar.',cancel:'Em Histórico, abra o agendamento e use “Solicitar cancelamento”. Regras e prazos serão definidos pela instituição.',prot:'Em Histórico e protocolos, informe o número (ex.: SOL-2026-0412) para ver andamento e respostas.'};
 const N_=s=>s.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase();
@@ -241,6 +190,6 @@ function G(p){
  if(p=='perm')return `<h1>Permissões</h1><div class="tw"><table><tr><th>Coordenador</th><th>Ver RA</th><th>Relatórios</th><th>Cursos</th></tr>${CO.map((c,i)=>`<tr><td>${c.n}</td><td><input type="checkbox" style="width:auto" aria-label="Ver RA de ${c.n}" ${i<2?'checked':''}></td><td><input type="checkbox" style="width:auto" aria-label="Relatórios de ${c.n}" checked></td><td>${c.c}</td></tr>`).join('')}</table></div><p><button class="btn" onclick="tt('Permissões salvas e auditadas.')">Salvar permissões</button></p>`;
  if(p=='cfg')return `<h1>Configurações gerais</h1><div class="c"><label for="a1">Antecedência mínima para cancelar (horas)</label><input id="a1" type="number" value="24"><p class="mu">Valor ilustrativo; regra institucional a definir.</p><button class="btn" onclick="tt('Configurações salvas.')">Salvar</button></div>`}
 function dt_(p){const x=A.find(y=>y.p==p);mo(`<h2>${x.p}</h2><p>${x.a} · ${x.ra}<br>${F(new Date(x.dt+'T12:00'))} ${x.h} · ${x.s}<br>${x.m} ${stT(x.st)}</p><label for="ob">Observações do atendimento</label><textarea id="ob" rows="3">${x.o}</textarea><p class="row"><button class="btn" onclick="up('${p}','Confirmado')">Confirmar</button><button class="btn" onclick="up('${p}','Concluído')">Concluir</button><button class="btn d" onclick="up('${p}','Cancelado')">Cancelar</button><button class="btn s" onclick="cm()">Fechar</button></p>`)}
-function up(p,s){const x=A.find(y=>y.p==p);x.o=E($('#ob').value);x.st=s;cm();tt('Atendimento '+s.toLowerCase()+'.'+(MAIL_ON&&x.em&&s!='Concluído'?' Aluno avisado por e-mail.':''));if(s!='Concluído'){envia(s=='Confirmado'?'confirmado':'cancelado_coord',x);if(DB_ON)DB_gravar(s=='Confirmado'?'confirmado':'cancelado_coord',x);}go('ag')}
+function up(p,s){const x=A.find(y=>y.p==p);x.o=E($('#ob').value);x.st=s;cm();tt('Atendimento '+s.toLowerCase()+'.'+(MAIL_ON&&x.em&&s!='Concluído'?' Aluno avisado por e-mail.':''));if(s!='Concluído')envia(s=='Confirmado'?'confirmado':'cancelado_coord',x);go('ag')}
 function ac_(){const n=$('#cn').value.trim(),e=$('#ce').value.trim();$('#e1').textContent=n?'':'Informe o nome.';$('#e2').textContent=/.+@.+/.test(e)?'':'Informe um e-mail válido.';if(!n||!/.+@.+/.test(e))return;CO.push({id:Math.max(...CO.map(c=>c.id))+1,n:E(n)+' (fictício)',r:'Coordenador',cs:[],c:'Vínculo a definir',d:[1],s:'Sala 203',l:''});tt('Coordenador cadastrado.');go('coord')}
 R();
