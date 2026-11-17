@@ -68,7 +68,7 @@ Site estático, sem build e sem servidor próprio. Duas páginas ligadas por lin
 |---|---|
 | `home` | Início: saudação, próximo atendimento, acesso rápido, listas |
 | `tri` | **Qual é o assunto?** (triagem) |
-| `faq` | Orientação na hora + "Isso resolveu?" (ajuste de grade, reprovação) |
+| `faq` | Orientação na hora + "Isso resolveu?" (ajuste de grade, reprovação). Para ajuste de grade, `TUT()` mostra o passo a passo do aceite com telas desenhadas em HTML/CSS (bloco 14 do CSS) |
 | `enc` | Encaminhamento ao Financeiro ou à Secretaria |
 | `busca` → `perfil` → `agenda` → `form` → `conf` | Coordenador, dia e horário, dados, confirmação |
 | `hist`, `det`, `prot`, `pd`, `nova` | Histórico, detalhe do agendamento, protocolos, nova solicitação |
