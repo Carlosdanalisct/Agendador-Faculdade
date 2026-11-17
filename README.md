@@ -26,10 +26,10 @@ O sistema ataca isso com:
 | Área | Funcionalidades |
 |---|---|
 | Portal (aluno) | Login demonstrativo (nome, qualquer CPF com 11 números, senha), página inicial no estilo do portal, card "Agendar atendimento" |
-| Agendamento (aluno) | Triagem por assunto, orientação na hora, encaminhamento a outro setor, lista de coordenadores, agenda mensal, horários de 15/45 min, formulário com aviso de setor errado, confirmação, arquivo `.ics`, alteração e cancelamento, histórico e protocolos, chatbot |
+| Agendamento (aluno) | Triagem por assunto, orientação na hora (com **passo a passo ilustrado do aceite da grade**), encaminhamento a outro setor, lista de coordenadores, agenda mensal, horários de 15/45 min, formulário com aviso de setor errado, confirmação, arquivo `.ics`, alteração e cancelamento, histórico e protocolos, chatbot |
 | Coordenação | Login pela aba "Sou coordenador", dashboard (indicadores da triagem, motivos mais frequentes), confirmar/concluir/cancelar atendimentos, relatórios com filtros, telas de configuração (demonstrativas) |
 | E-mails | Confirmação, alteração, cancelamento e confirmação pelo coordenador; lembrete diário às 7h; resumo do dia ao coordenador (Google Apps Script + Gmail) |
-| Qualidade | Visual igual ao portal, celular e computador, modo escuro, contraste AA (4,5:1) verificado, navegação por teclado |
+| Qualidade | Visual igual ao portal, celular e computador, modo escuro, contraste AA (4,5:1) verificado, navegação por teclado, **VLibras** (Libras) |
 
 ## Próximos trabalhos (equipes)
 
