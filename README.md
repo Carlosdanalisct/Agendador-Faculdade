@@ -5,7 +5,7 @@ Protótipo de um módulo de **agendamento de atendimentos com a coordenação do
 **Site publicado:** https://carlosdanalisct.github.io/Agendador-Faculdade/
 **Acesso da coordenação:** https://carlosdanalisct.github.io/Agendador-Faculdade/#gestao
 
-> **Aviso:** é um protótipo de demonstração. Os dados de exemplo são fictícios, o login não é real e os textos legais **precisam de revisão jurídica** antes de qualquer uso real. Os nomes dos coordenadores só podem aparecer com autorização deles.
+> **Aviso:** é um protótipo de demonstração. Não há agendamentos de exemplo: tudo o que aparece foi marcado de verdade no site. O login não é real e os textos legais **precisam de revisão jurídica** antes de qualquer uso real. Os nomes dos coordenadores só podem aparecer com autorização deles.
 
 ## O problema e a solução
 
@@ -27,7 +27,7 @@ O sistema ataca isso com:
 |---|---|
 | Portal (aluno) | Login demonstrativo (nome, qualquer CPF com 11 números, senha), página inicial no estilo do portal, card "Agendar atendimento" |
 | Agendamento (aluno) | Triagem por assunto, orientação na hora (com **passo a passo ilustrado do aceite da grade**), encaminhamento a outro setor, lista de coordenadores, agenda mensal, horários de 15/45 min, formulário com aviso de setor errado, confirmação, arquivo `.ics`, alteração e cancelamento, histórico e protocolos, chatbot |
-| Coordenação | Login pela aba "Sou coordenador", dashboard (indicadores da triagem, motivos mais frequentes), confirmar/concluir/cancelar atendimentos, relatórios com filtros, telas de configuração (demonstrativas) |
+| Coordenação | Login pela aba "Sou coordenador", dashboard só com dados reais (indicadores da triagem somando todos os aparelhos, motivos, status), confirmar/concluir/cancelar atendimentos, relatórios com dados reais (por assunto, turno, sala, coordenador e status), telas de configuração (demonstrativas) |
 | E-mails | Confirmação, alteração, cancelamento e confirmação pelo coordenador; lembrete diário às 7h; resumo do dia ao coordenador (Google Apps Script + Gmail) |
 | Qualidade | Visual igual ao portal, celular e computador, modo escuro, contraste AA (4,5:1) verificado, navegação por teclado |
 
@@ -50,7 +50,7 @@ Agendador-Faculdade/
 ├── agendamento/
 │   ├── index.html          Página do agendamento (carrega config.js e script.js)
 │   ├── config.js           Liga o envio de e-mails (URL do Apps Script e senha)
-│   ├── script.js           Telas, triagem, chatbot, gestão, dados de exemplo
+│   ├── script.js           Telas, triagem, chatbot, gestão (dados reais)
 │   └── style.css           Estilos do agendamento (mesma identidade do portal)
 ├── integracoes/gmail/
 │   ├── Code.gs             Google Apps Script: planilha + Gmail + lembrete diário
@@ -74,7 +74,7 @@ Sem etapa de build: são arquivos estáticos. O React vem por CDN (cdnjs).
 2. Escolha o **assunto**. Teste "Ajuste de grade" (orientação e "Isso resolveu?"), "Boleto" (encaminhamento) e "Análise curricular" (horário de 45 min).
 3. Escolha coordenador, dia e horário, preencha o motivo e o **e-mail** (qualquer e-mail: cada endereço recebe até 3 mensagens por dia na demonstração) e confirme. A confirmação chega por e-mail.
 4. **Coordenação:** em `#gestao`, escolha **Sou coordenador**, qualquer e-mail válido e senha com 6+ caracteres. Confirme o atendimento (o aluno recebe e-mail). No Dashboard, **"Enviar os lembretes de hoje agora"** dispara o lembrete do dia e o resumo do coordenador.
-5. **Reiniciar demonstração** (rodapé) volta aos dados de exemplo.
+5. **Começar do zero:** no Apps Script, rode `zerarDados` (apaga os agendamentos da planilha e zera a triagem). **Reiniciar demonstração** (rodapé) limpa só o que ficou salvo no navegador.
 
 ## Documentação
 
@@ -97,7 +97,7 @@ HTML5 · CSS3 (variáveis, modo escuro) · JavaScript puro · React 18 (UMD, CDN
 
 ## Limitações conhecidas
 
-- **Banco de dados na planilha Google:** agendamentos são compartilhados entre aparelhos (o coordenador vê o que foi marcado em qualquer celular, e o mesmo horário não pode ser marcado duas vezes). Sem login real, cada aluno vê como seus só os agendamentos feitos no próprio aparelho; solicitações e contadores da triagem continuam por aparelho.
+- **Banco de dados na planilha Google:** agendamentos são compartilhados entre aparelhos (o coordenador vê o que foi marcado em qualquer celular, e o mesmo horário não pode ser marcado duas vezes). Sem login real, cada aluno vê como seus só os agendamentos feitos no próprio aparelho; os contadores da triagem são somados no banco; as solicitações continuam por aparelho. Relatórios cobrem os últimos 90 dias.
 - **Login demonstrativo:** não há autenticação real; a visão de coordenador é sempre a do coordenador de exemplo (id 1).
 - **Chatbot:** a IA só funciona com a chave do Gemini configurada no Apps Script; sem ela (ou se falhar), frases fora do vocabulário caem em "não consegui identificar".
 - **E-mails:** qualquer pessoa pode testar com o próprio e-mail, com limites (3 por endereço e 50 no total por dia para quem não é da equipe; a equipe, na lista `PERMITIDOS`, não tem limite). A conta gratuita do Gmail envia até 100 por dia. A URL e a senha do serviço ficam públicas no `config.js`.

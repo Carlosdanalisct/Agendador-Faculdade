@@ -51,15 +51,15 @@ Site estático, sem build e sem servidor próprio. Duas páginas ligadas por lin
 | Trecho | Conteúdo |
 |---|---|
 | Utilitários | `$` (querySelector), `T` (hoje 00:00), `F` (data pt-BR), `iso`, `DR` (data relativa a hoje), `E` (escape), `MES` |
-| Dados de base | `CO0`/`CO` (coordenadores), `CRS` (cursos), `NOME`/`ME` (aluno logado), `CATS` e `AS` (assuntos), `A` (agendamentos), `P` (protocolos), `NT` (avisos), `N` (contador de protocolo) |
+| Dados de base | `CO0`/`CO` (coordenadores), `CRS` (cursos), `NOME`/`ME` (aluno logado), `CATS` e `AS` (assuntos), `A` (agendamentos, começa vazio), `P` (protocolos, começa vazio), `NTS()` (avisos gerados dos agendamentos do aluno), `N` (contador de protocolo) |
 | E-mails | `CFG`, `MAIL_ON`, `TXT`, `EMS`, `envia()` |
 | Persistência | `SV` (chave), `TRI` (contadores da triagem), `salva()`, carregamento inicial, `rst()` (reiniciar) |
-| Estado e horários | `S`, leitura de `?gestao=`, `MIN`/`HM`, `ocu15` (ocupação fictícia), `occ()` (conflito), `SLOTS(duração)` |
+| Estado e horários | `S`, leitura de `?gestao=`, `MIN`/`HM`, `occ()` (conflito), `SLOTS(duração)` |
 | Interface | `tt` (aviso), `ck` (cookies), `mo`/`cm` (janela), `go`, `stT` (status), ícones `IC`/`I`, menus `STU`/`GES`/`ADM`, `TIT`/`PAI` (trilha), `foot` (rodapé), `R()` |
 | Telas do aluno | `Sx(p)` |
 | Ações do aluno | `sv` (salvar agendamento), `ics` (arquivo de calendário), `cx` (cancelar), `ns` (nova solicitação) |
 | Chatbot e triagem | `SUBK`, `SET`, `HIT`, `FQ`, `esc_` (escolha do assunto), `av_` (aviso no formulário), `NM`, `DS`, `ask`, `cs` |
-| Gestão | `RD` (dados de relatório fictícios), `bars`, `G(p)`, `dt_`/`up` (detalhes e status), `ac_` (novo coordenador) |
+| Gestão | `bars`, dashboard e relatórios calculados de `A` (dados reais), `tri()` (triagem enviada ao banco), `G(p)`, `dt_`/`up` (detalhes e status), `ac_` (novo coordenador) |
 
 ### Telas
 **Aluno** (`Sx`, menu `STU`):
@@ -111,11 +111,11 @@ Status de agendamento: `Pendente` → `Confirmado` → `Concluído`, ou `Cancela
 | Chave do `localStorage` | Conteúdo | Quem grava |
 |---|---|---|
 | `pda_nome` | Nome do aluno (login) | `app.js` |
-| `pda_demo2` | `{me, A, P, N, CO, TRI}` | `salva()`, a cada `go()` |
+| `pda_v3` | `{me, A, P, N, CO, TRI}` (a versão antiga `pda_demo2`, com exemplos, é apagada ao abrir) | `salva()`, a cada `go()` |
 | `pda_email` | Último e-mail informado no formulário | `sv()` |
 | `pda_ck` | Escolha do aviso de cookies | `ck()` |
 
-`rst()` (link "Reiniciar demonstração") apaga `pda_demo2` e recarrega.
+`rst()` (link "Reiniciar demonstração") apaga `pda_v3` e recarrega.
 
 ## Serviço: banco de dados e e-mails (opcional)
 Com `CFG.EMAIL_API` preenchido, a mesma chamada grava o agendamento na planilha (banco compartilhado) e envia o e-mail; `sync()` traz os agendamentos dos outros aparelhos (ação `listar`, sem e-mails). Detalhes em [`BANCO-DE-DADOS.md`](BANCO-DE-DADOS.md). `envia(acao, agendamento)` faz `POST` (corpo JSON em `text/plain`, para evitar a checagem prévia de CORS) ao Apps Script com `{token, acao, ag}`. Ações: `novo`, `alterado`, `cancelado`, `confirmado`, `cancelado_coord` e `lembretes_agora` (botão do dashboard). O `Code.gs` grava cada agendamento na aba **Agendamentos** da planilha, envia o e-mail ao aluno e, num gatilho diário às 7h, envia os lembretes do dia e o resumo ao coordenador. Envia para a equipe (`PERMITIDOS`) sem limite e, com `ABERTO: true`, para qualquer e-mail com limites diários (3 por endereço, 50 no total, 10 usos do botão de lembretes), contados nas Propriedades do script. Links nos campos de texto são removidos. Instalação: [`integracoes/gmail/LEIA-ME.md`](../integracoes/gmail/LEIA-ME.md).

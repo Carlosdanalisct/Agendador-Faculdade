@@ -10,7 +10,7 @@ A opção A abaixo está **em funcionamento**: a planilha do Apps Script é o ba
 - **Uma chamada por evento:** `envia(acao, agendamento)` no site manda ao Apps Script; ele **grava na planilha** e envia o e-mail, se houver. Ações: `novo`, `alterado`, `cancelado`, `confirmado`, `concluido`, `cancelado_coord`.
 - **Conflito no servidor:** em `novo` e `alterado`, o `Code.gs` recusa (`erro: 'conflito'`) se outro agendamento ativo do mesmo coordenador se sobrepõe ao horário. O site avisa *"Esse horário acabou de ser ocupado por outra pessoa"* e volta à agenda já atualizada.
 - **Protocolo único:** `PROT()` gera `AGD-AAAA-` + 6 dígitos a partir do relógio; se repetir, o servidor responde `duplicado` e o site tenta outro.
-- **Leitura (`listar`):** devolve os agendamentos **de ontem em diante**, **sem e-mail, RA ou observações** e com **nome abreviado** ("Ana S."). O site junta com os dados locais em `sync()`.
+- **Leitura (`listar`):** devolve os agendamentos **dos últimos 90 dias em diante** (para o dashboard e os relatórios) e os **totais da triagem**, **sem e-mail, RA ou observações** e com **nome abreviado** ("Ana S."). O site junta com os dados locais em `sync()`.
 - **Quando o site atualiza:** ao abrir a página, ao entrar em Início, Histórico, Agenda, Agendamentos e Dashboard (no máximo a cada 15 s), ao voltar para a aba do navegador e no link **Atualizar** da gestão.
 - **Atualizações de outro aparelho** (por exemplo, o coordenador confirmando) usam o e-mail e o nome completo guardados na planilha; o aparelho do coordenador não recebe e-mails dos alunos.
 - **Planilha:** colunas lidas e gravadas **pelo nome**; as novas (`coordenador_id`, `ra`, `observacoes`) entram no fim. Planilhas antigas continuam funcionando.
@@ -18,7 +18,8 @@ A opção A abaixo está **em funcionamento**: a planilha do Apps Script é o ba
 
 **Limites conhecidos (aceitos para a demonstração)**
 - Sem login real: o aluno vê como "seus" só os agendamentos feitos **naquele aparelho** (identificação pelo nome). O coordenador vê todos.
-- Solicitações (`P`) e contadores da triagem (`TRI`) continuam por aparelho.
+- Solicitações (`P`) continuam por aparelho. A triagem ("resolvi sem agendar" / "encaminhado") é somada no banco pela ação `triagem` (Propriedades do script `TRI_res`/`TRI_enc`).
+- **Começar do zero:** `zerarDados()` no editor do Apps Script apaga todas as linhas (mantém o cabeçalho) e zera a triagem e os limites de e-mail. Não dá para desfazer.
 - Cada chamada leva 1 a 3 segundos (Apps Script).
 - Nomes abreviados e assuntos ficam acessíveis a quem tem a senha pública.
 
@@ -48,11 +49,11 @@ O banco de dados deve tornar agendamentos, horários ocupados e protocolos **os 
 | `TRI` | `{res, enc}` | Resolvidos sem agendamento e encaminhados a outro setor |
 | `N` | número | Último número usado nos protocolos |
 
-Listas fixas que podem continuar no código ou ir para o banco: `CATS`/`AS` (assuntos, setor, duração), `CRS` (cursos), `NT` (avisos de exemplo), `RD` (dados fictícios dos relatórios).
+Listas fixas que podem continuar no código ou ir para o banco: `CATS`/`AS` (assuntos, setor, duração), `CRS` (cursos). Não há mais dados de exemplo no código: agendamentos, avisos, dashboard e relatórios vêm do que foi marcado.
 
 ### Persistência atual
-- `salva()` grava `{me, A, P, N, CO, TRI}` em `localStorage['pda_demo2']` **a cada navegação** (`go()`).
-- No carregamento, um bloco logo após `salva()` lê esse conteúdo e substitui os dados de exemplo.
+- `salva()` grava `{me, A, P, N, CO, TRI}` em `localStorage['pda_v3']` **a cada navegação** (`go()`).
+- No carregamento, um bloco logo após `salva()` lê esse conteúdo (que começa vazio).
 - `rst()` apaga e recarrega (link "Reiniciar demonstração").
 
 ### Onde os dados são gravados (pontos de escrita)
@@ -63,10 +64,10 @@ Listas fixas que podem continuar no código ou ir para o banco: `CATS`/`AS` (ass
 | `up(p, s)` | Coordenador muda status e observações | `UPDATE status, observacoes` |
 | `ns()` | Nova solicitação em `P` | `INSERT solicitacao` |
 | `ac_()` | Novo coordenador em `CO` | `INSERT coordenador` |
-| Tela `faq` ("Sim, resolvi"), `esc_()`, `ask()` | Somam `TRI.res` / `TRI.enc` | `INSERT evento_triagem` |
+| Tela `faq` ("Sim, resolvi"), `esc_()`, `ask()` | `tri()` soma `TRI` local e envia `triagem` ao Apps Script | `INSERT evento_triagem` |
 
 ### Onde os dados são lidos (pontos de leitura)
-- `occ(co, data, hora, duração)`: **conflito de horário**. Hoje olha `A` + uma ocupação fictícia (`ocu15`). Com banco, precisa dos agendamentos não cancelados do coordenador naquele dia.
+- `occ(co, data, hora, duração)`: **conflito de horário**. Olha `A` (já sincronizado com a planilha); o servidor confere de novo. Com banco real, precisa dos agendamentos não cancelados do coordenador naquele dia.
 - Telas do aluno (`Sx`): `home`, `hist`, `det`, `conf` filtram `A` por `x.a == ME` (o aluno é identificado pelo **nome**, porque não há login real).
 - Telas da gestão (`G`): `dash`, `ag` filtram `A` por `x.co == 1` (coordenador de exemplo) ou tudo, se administrador.
 
@@ -127,7 +128,7 @@ Lembretes: ao mudar o `Code.gs`, **publicar uma nova versão** (Implantar → Ge
 
 1. **Criar uma camada de dados** em `script.js`, por exemplo `carregarDados()`, `gravarAgendamento(x)`, `mudarStatus(p, st, obs)`, `gravarSolicitacao(s)`, `registrarTriagem(tipo)`. Trocar as gravações diretas listadas acima por essas funções.
 2. **Carregar do banco ao abrir** a página (e ao entrar nas telas `home`, `hist`, `dash`, `ag`), substituindo o conteúdo de `A`/`P`/`TRI`. Mostrar um "Carregando…" curto.
-3. **`occ()`**: usar os agendamentos do banco do coordenador/dia. Manter a ocupação fictícia (`ocu15`) só se quiserem a agenda "cheia" na demonstração.
+3. **`occ()`**: usar os agendamentos do banco do coordenador/dia.
 4. **`sv()`**: gravar no banco e só ir para `conf` se a resposta for `ok`; tratar `conflito` com o aviso que já existe ("Horário acabou de ser ocupado. Escolha outro.").
 5. **Sem internet:** manter o `localStorage` como cópia e mostrar um aviso, para a demonstração não travar.
 6. **E-mails:** se o banco for a própria planilha, unificar: o mesmo registro serve aos dois. Se for outro banco, o envio pode continuar no Apps Script ou ir para o servidor novo.

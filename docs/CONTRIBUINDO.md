@@ -63,5 +63,5 @@ Teste no computador e no celular (ou na largura de celular do navegador), e no m
 
 **Geral**
 - [ ] Nenhum erro no console do navegador (F12 → Console).
-- [ ] "Reiniciar demonstração" volta aos dados de exemplo.
+- [ ] "Reiniciar demonstração" limpa os dados do navegador; dashboard e relatórios mostram "Sem dados" quando não há agendamentos.
 - [ ] Textos legíveis no modo escuro.
