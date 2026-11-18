@@ -211,8 +211,8 @@ function resp(hit,sub,l){let r;const ag=AS.find(a=>a.k==sub)||AS.find(a=>a.k=='o
  return r}
 /* Chat com IA (híbrido): só pergunta à IA quando as palavras-chave não entendem a frase.
    A IA só classifica (setor + assunto) no Apps Script; a resposta é sempre a de resp().
-   Falhou, demorou mais de 6 s ou veio com baixa confiança -> resposta por palavras-chave. */
-function iaClassifica(q){if(!MAIL_ON)return Promise.resolve(null);const ac=window.AbortController?new AbortController():null,tm=setTimeout(()=>ac&&ac.abort(),6000);
+   Falhou, demorou mais de 10 s ou veio com baixa confiança -> resposta por palavras-chave. */
+function iaClassifica(q){if(!MAIL_ON)return Promise.resolve(null);const ac=window.AbortController?new AbortController():null,tm=setTimeout(()=>ac&&ac.abort(),10000);
  return fetch(CFG.EMAIL_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:CFG.EMAIL_TOKEN||'',acao:'chat',texto:q.slice(0,300)}),signal:ac?ac.signal:undefined})
  .then(r=>r.json()).then(j=>{clearTimeout(tm);if(!j||!j.ok||!Array.isArray(j.setores))return null;const set=j.setores.filter((s,i,a)=>['coord','sec','fin'].includes(s)&&a.indexOf(s)==i);
   if(!set.length||Number(j.confianca)<0.5)return null;return {hit:set,sub:set.includes('coord')&&Object.keys(SUBK).concat('outro').includes(j.assunto)?j.assunto:'outro'}}).catch(()=>{clearTimeout(tm);return null})}

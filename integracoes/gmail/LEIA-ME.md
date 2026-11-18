@@ -66,7 +66,8 @@ O chatbot entende frases livres ("não tô vendo a matéria no portal") usando o
 
 1. Em [aistudio.google.com/apikey](https://aistudio.google.com/apikey), com uma conta Google da equipe, clique em **Criar chave de API** e copie a chave. **Não coloque a chave no site nem no repositório.**
 2. No editor do Apps Script: **Configurações do projeto** (engrenagem, à esquerda) → **Propriedades do script** → **Adicionar propriedade do script**. Propriedade: `GEMINI_KEY`. Valor: a chave. **Salvar propriedades do script**.
-3. Volte ao editor, escolha a função **`testarIA`** e clique em **Executar**. Na primeira vez, o Google pede uma nova autorização (acesso a serviços externos): **Avançado → Acessar → Permitir**. Em **Registro de execução** devem aparecer três linhas com `"ok":true`.
+3. Volte ao editor, escolha a função **`diagnosticoIA`** e clique em **Executar** (não use "Depuração", que é bem mais lento). Na primeira vez, o Google pede uma nova autorização (acesso a serviços externos): **Avançado → Acessar → Permitir**. Ela lista os modelos da sua conta, mede o tempo de cada um e passa a usar o **mais rápido** (leva até ~4 min).
+   Depois, rode **`testarIA`**: devem aparecer três linhas com `"ok":true` e o tempo de cada uma (o ideal é menos de 5 s; o site espera até 10 s).
 4. **Implantar → Gerenciar implantações → lápis → Versão: Nova versão → Implantar.**
 
 Se `testarIA` mostrar `"erro":"ia"`, confira a chave; se mostrar `"erro":"limite"`, a cota gratuita do minuto/dia acabou (o chatbot volta a funcionar por palavras-chave).

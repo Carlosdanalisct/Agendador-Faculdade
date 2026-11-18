@@ -339,26 +339,38 @@ function classificarIA(texto) {
   const salvo = props.getProperty('IA_MODELO');
   const modelos = salvo ? [salvo].concat(CONFIG.IA_MODELOS.filter(m => m !== salvo)) : CONFIG.IA_MODELOS;
   for (let i = 0; i < modelos.length; i++) {
-    const m = modelos[i];
-    try {
-      const r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', {
-        method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { 'x-goog-api-key': chave },
-        payload: JSON.stringify({
-          systemInstruction: { parts: [{ text: IA_INSTRUCOES }] },
-          contents: [{ role: 'user', parts: [{ text: String(texto) }] }],
-          generationConfig: { temperature: 0, maxOutputTokens: 512, responseMimeType: 'application/json' },
-        }),
-      });
-      const code = r.getResponseCode();
-      if (code === 429) return { ok: false, erro: 'limite' };
-      if (code !== 200) continue; // modelo indisponível ou chave recusada: tenta o próximo
-      const out = validarIA(JSON.parse(r.getContentText()));
-      if (!out) continue;
-      if (salvo !== m) props.setProperty('IA_MODELO', m);
-      return Object.assign({ ok: true, modelo: m }, out);
-    } catch (err) { /* tenta o próximo */ }
+    const r = tentarModelo(modelos[i], chave, texto);
+    if (r.erro === 'limite') return { ok: false, erro: 'limite' };
+    if (!r.out) continue;
+    if (salvo !== modelos[i]) props.setProperty('IA_MODELO', modelos[i]);
+    return Object.assign({ ok: true, modelo: modelos[i] }, r.out);
   }
   return { ok: false, erro: 'ia' };
+}
+
+/** Uma tentativa num modelo, com o "raciocínio" desligado (mais rápido; só
+ *  precisamos classificar). Se o modelo recusar essa opção, tenta sem ela. */
+function tentarModelo(m, chave, texto) {
+  const corpo = semRaciocinio => JSON.stringify({
+    systemInstruction: { parts: [{ text: IA_INSTRUCOES }] },
+    contents: [{ role: 'user', parts: [{ text: String(texto) }] }],
+    generationConfig: Object.assign({ temperature: 0, maxOutputTokens: 256, responseMimeType: 'application/json' },
+      semRaciocinio ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+  });
+  for (const semRaciocinio of [true, false]) {
+    try {
+      const r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', {
+        method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { 'x-goog-api-key': chave }, payload: corpo(semRaciocinio),
+      });
+      const code = r.getResponseCode();
+      if (code === 429) return { erro: 'limite' };
+      if (code === 400 && semRaciocinio) continue; // não aceita desligar o raciocínio: tenta sem a opção
+      if (code !== 200) return { erro: 'http ' + code };
+      const out = validarIA(JSON.parse(r.getContentText()));
+      return out ? { out: out } : { erro: 'resposta' };
+    } catch (err) { return { erro: String(err) }; }
+  }
+  return { erro: 'ia' };
 }
 
 /** Lê a resposta do Gemini e aceita só setores e assuntos conhecidos. */
@@ -377,10 +389,36 @@ function validarIA(j) {
 }
 
 // ------------------- rodar uma vez, pelo editor ---------------------
-/** Testa a IA (precisa da propriedade GEMINI_KEY). Veja o resultado em "Registro de execução". */
+/** Testa a IA (precisa da propriedade GEMINI_KEY). Use "Executar" (não "Depuração").
+ *  Mostra o tempo de cada resposta em "Registro de execução". */
 function testarIA() {
   ['não tô vendo a matéria de cálculo no portal', 'quero aproveitar matérias da outra facul', 'minha mãe faleceu e vou precisar me ausentar um mês']
-    .forEach(f => Logger.log(f + '  ->  ' + JSON.stringify(classificarIA(f))));
+    .forEach(f => { const t0 = Date.now(); const r = classificarIA(f); Logger.log(f + '  ->  ' + JSON.stringify(r) + '  (' + ((Date.now() - t0) / 1000).toFixed(1) + ' s)'); });
+}
+
+/** Lista os modelos "flash" da sua conta, mede o tempo de cada um e passa a usar
+ *  o MAIS RÁPIDO que funcionar. Rode uma vez com "Executar" (leva até ~4 min). */
+function diagnosticoIA() {
+  const props = PropertiesService.getScriptProperties(), chave = props.getProperty('GEMINI_KEY');
+  Logger.log('Chave: ' + (chave ? 'encontrada (' + chave.length + ' caracteres, começa com "' + chave.slice(0, 4) + '")' : 'NÃO encontrada'));
+  if (!chave) return;
+  const r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': chave }, muteHttpExceptions: true });
+  if (r.getResponseCode() !== 200) { Logger.log('Erro ao listar modelos: HTTP ' + r.getResponseCode() + ' ' + r.getContentText().slice(0, 200)); return; }
+  const nomes = JSON.parse(r.getContentText()).models
+    .filter(m => (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0)
+    .map(m => m.name.replace('models/', ''))
+    .filter(n => /flash/.test(n) && !/(image|tts|audio|live|exp|thinking|8b)/.test(n));
+  Logger.log('Modelos flash disponíveis: ' + nomes.join(', '));
+  const candidatos = nomes.filter(n => /lite/.test(n)).concat(nomes.filter(n => !/lite/.test(n))).slice(0, 8);
+  const ini = Date.now(); let melhor = null;
+  candidatos.forEach(m => {
+    if (Date.now() - ini > 240000) return; // respeita o limite de 6 min do Apps Script
+    const t0 = Date.now(), res = tentarModelo(m, chave, 'minha disciplina não aparece no portal'), seg = (Date.now() - t0) / 1000;
+    Logger.log(m + ': ' + (res.out ? 'ok' : 'falhou (' + res.erro + ')') + ' em ' + seg.toFixed(1) + ' s');
+    if (res.out && (!melhor || seg < melhor.seg)) melhor = { m: m, seg: seg };
+  });
+  if (melhor) { props.setProperty('IA_MODELO', melhor.m); Logger.log('>>> Escolhido o mais rápido: ' + melhor.m + ' (' + melhor.seg.toFixed(1) + ' s). Agora publique uma Nova versão.'); }
+  else Logger.log('Nenhum modelo funcionou.');
 }
 /** 1º: autoriza o envio e manda um e-mail de teste para você. */
 function testarEnvio() {
