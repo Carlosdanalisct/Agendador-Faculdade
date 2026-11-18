@@ -208,7 +208,8 @@ footer a{color:var(--o)}
   .task>.tag{justify-self:start}
   .task .t{font-size:15px}
   .kpis{grid-template-columns:repeat(2,1fr)}
-  .row>*{min-width:100%}.row>.btn{flex:1}
+  .row>*{min-width:100%}.row>.btn{flex:1 1 auto;min-width:0;max-width:100%;white-space:normal;text-align:center;padding:8px 16px;line-height:1.25}/* botões quebram linha em vez de cortar o texto (fonte grande no iPhone) */
+  .acts .btn{white-space:normal;text-align:center}
   .acts .btn{flex:1}
   table{min-width:600px}
   .cal{gap:4px}.d{min-height:40px}
