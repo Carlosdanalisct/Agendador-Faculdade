@@ -2,6 +2,20 @@
 
 Para a equipe que vai colocar inteligência artificial no chatbot.
 
+## Situação: implementado (híbrido, Gemini gratuito)
+
+Seguindo a arquitetura recomendada abaixo:
+- **Palavras-chave primeiro:** frases que o chatbot já entende (e as perguntas prontas) respondem na hora, **sem chamar a IA**.
+- **IA só para frases desconhecidas:** o site mostra "Analisando a sua mensagem…" e envia **só a frase** (até 300 caracteres) ao Apps Script (ação `chat`), que consulta o Gemini e devolve `{setores, assunto, confianca}`.
+- **A resposta continua sendo a do site** (`resp()`), com os textos revisados e os botões de orientação, agendamento ou encaminhamento. A mensagem ganha a marca **"Entendido com IA"**.
+- **Fallback:** sem chave, erro, mais de 6 s, confiança menor que 0,5 ou nenhum setor → resposta por palavras-chave ("não consegui identificar…").
+- **Segurança:** a chave fica nas **Propriedades do script** (`GEMINI_KEY`), nunca no site; vai no cabeçalho da requisição; saída validada contra listas fechadas no servidor e no site; limite de `LIMITE_IA_DIA` (300) perguntas por dia; modelos tentados em ordem (`IA_MODELOS`), o primeiro que funcionar é lembrado.
+- **Aviso no chat:** "Não informe dados pessoais…" (LGPD).
+
+Como ligar: [`integracoes/gmail/LEIA-ME.md`](../integracoes/gmail/LEIA-ME.md), seção "Chat com IA". Código: `classificarIA()` e `validarIA()` no `Code.gs`; `iaClassifica()`, `resp()` e `ask()` no `script.js`.
+
+O restante deste documento é o guia original, mantido como referência.
+
 ## Objetivo
 
 O chatbot atual ("Qual setor procurar?") funciona por **palavras-chave**: nunca inventa, mas não entende frases fora do vocabulário (por exemplo "não tô vendo a matéria de cálculo no portal"). A IA deve **entender frases livres** e levar o aluno ao **setor certo** e ao **próximo passo** (orientação, agendamento ou encaminhamento), **sem inventar regras, prazos ou valores**.

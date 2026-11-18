@@ -19,6 +19,8 @@ O que foi feito em cada etapa. Os detalhes de cada mudança estão nos pull requ
 | — | "teste_do_banco" (enviado direto na `main`) | Primeira versão do banco pela equipe; quebrou a página de agendamento. Revertido e guardado em `banco-planilha-wip` |
 | 12 | Site restaurado + celular | Reverte o commit acima; cabeçalhos cabem em 360px, botões com 44px, aba ativa visível |
 | 13 | Banco de dados na planilha | A partir da ideia da equipe: uma chamada por evento (grava + e-mail), conflito de horário no servidor, `listar` sem e-mails e com nomes abreviados, colunas pelo nome, protocolo único, atualização entre aparelhos |
+| 14 | Tutorial do aceite e VLibras | Passo a passo ilustrado do aceite da grade (telas desenhadas, sem prints reais) na orientação de ajuste de grade; VLibras nas duas páginas |
+| 15 | Chat com IA (híbrido) | Palavras-chave primeiro; frases desconhecidas classificadas pelo Gemini no Apps Script (chave nas Propriedades do script); resposta sempre com os textos revisados; fallback, limite diário e aviso de privacidade |
 
 ## Decisões que valem lembrar
 - **Simulação, sem custo e sem contas institucionais:** nada usa e-mail ou agenda da faculdade ou de professores; os e-mails saem de um Gmail da equipe.
