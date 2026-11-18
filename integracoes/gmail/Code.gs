@@ -58,17 +58,21 @@ function doPost(e) {
     const c = JSON.parse(e.postData.contents);
     if (c.acao === 'chat') return resposta(c.token === CONFIG.TOKEN ? classificarIA(String(c.texto || '').slice(0, 300)) : { ok: false, erro: 'token' });
     if (c.acao === 'triagem') return resposta(c.token === CONFIG.TOKEN ? registrarTriagem(c.tipo) : { ok: false, erro: 'token' });
+    // Leitura não precisa da trava: com muita gente no site, as consultas não
+    // fazem fila na frente de quem está agendando.
+    if (c.acao === 'listar') return resposta(c.token === CONFIG.TOKEN ? { ok: true, agendamentos: listar(), triagem: totaisTriagem() } : { ok: false, erro: 'token' });
   } catch (err) { /* segue o fluxo normal */ }
   const lock = LockService.getScriptLock();
+  // Gravações em fila: espera até 25 s; se não der, responde "ocupado" sem gravar
+  // nada e o site tenta de novo.
+  if (!lock.tryLock(25000)) return resposta({ ok: false, erro: 'ocupado' });
   try {
-    lock.waitLock(10000);
     const d = JSON.parse(e.postData.contents);
     if (d.token !== CONFIG.TOKEN) return resposta({ ok: false, erro: 'token' });
     if (d.acao === 'lembretes_agora') {
       if (!contador('b', null, CONFIG.LIMITE_BOTAO_DIA)) return resposta({ ok: false, erro: 'limite' });
       return resposta(Object.assign({ ok: true }, enviarLembretesDoDia(true)));
     }
-    if (d.acao === 'listar') return resposta({ ok: true, agendamentos: listar(), triagem: totaisTriagem() });
     const a = limpa(d.ag || {});
     if (!/^AGD-\d{4}-\d+$/.test(a.protocolo) || !/^\d{4}-\d{2}-\d{2}$/.test(a.data) || !/^\d{2}:\d{2}$/.test(a.hora)) return resposta({ ok: false, erro: 'dados' });
     if (a.email && !emailValido(a.email)) return resposta({ ok: false, erro: 'email' });

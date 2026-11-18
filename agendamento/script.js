@@ -68,19 +68,23 @@ const EMS=()=>{try{return localStorage.getItem('pda_email')||''}catch(e){return 
 /* Serviço (Google Apps Script): a MESMA chamada grava o agendamento na planilha
    (banco de dados compartilhado) e envia o e-mail, se houver. Devolve a resposta
    {ok, erro} — erro 'conflito' = horário ocupado em outro aparelho; 'rede' = sem conexão. */
-function envia(acao,x){if(!MAIL_ON)return Promise.resolve(null);const c=x&&cd(x.co);
+/* Com muita gente ao mesmo tempo o servidor pode estar ocupado: tenta de novo
+   (até 3 vezes) só quando ele garante que nada foi gravado. */
+const OCUP=r=>r&&!r.ok&&(r.erro=='ocupado'||/lock|bloqueio|trava/i.test(r.erro||''));
+function envia(acao,x,n){n=n||0;return envia1(acao,x).then(r=>{if(OCUP(r)&&n<3)return new Promise(ok=>setTimeout(ok,1500*(n+1)+Math.random()*1000)).then(()=>envia(acao,x,n+1));return r})}
+function envia1(acao,x){if(!MAIL_ON)return Promise.resolve(null);const c=x&&cd(x.co);
  const ag=x?{protocolo:x.p,aluno:TXT(x.a),email:x.em||'',coordenador:TXT(c.n),co:x.co,data:x.dt,hora:x.h,duracao:x.dur||50,sala:x.s,local:c.l,assunto:TXT(x.m),status:x.st,ra:TXT(x.ra||''),o:TXT(x.o||'')}:null;
  return fetch(CFG.EMAIL_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:CFG.EMAIL_TOKEN||'',acao,ag})})
   .then(r=>r.json()).catch(()=>({ok:false,erro:'rede'}))}
 /* Avisos sobre o e-mail depois de gravar (o agendamento já está salvo). */
 function aviso(r,x,ok){if(!r)return;if(r.ok){if(x&&x.em&&ok)tt(ok);return}
- const m={nao_permitido:'Este e-mail não está na lista permitida da demonstração. O agendamento foi salvo, mas o e-mail não foi enviado.',limite:'Limite diário de e-mails da demonstração atingido. O agendamento foi salvo, mas o e-mail não foi enviado.',rede:'Sem conexão com o servidor agora. O agendamento foi salvo neste aparelho.'}[r.erro];
+ const m={nao_permitido:'Este e-mail não está na lista permitida da demonstração. O agendamento foi salvo, mas o e-mail não foi enviado.',limite:'Limite diário de e-mails da demonstração atingido. O agendamento foi salvo, mas o e-mail não foi enviado.',rede:'Sem conexão com o servidor agora. O agendamento foi salvo neste aparelho.',ocupado:'Muita gente agendando ao mesmo tempo. O agendamento foi salvo neste aparelho; tente confirmar de novo em instantes.'}[r.erro];
  tt(m||'Não foi possível enviar o e-mail agora. O agendamento foi salvo.')}
 /* Banco compartilhado: traz os agendamentos de todos os aparelhos (sem e-mails,
    nomes abreviados) e junta com os deste aparelho. Ocupa os horários em occ()
-   e alimenta a visão do coordenador. Silencioso; no máximo a cada 15 s. */
+   e alimenta a visão do coordenador. Silencioso; no máximo a cada 30 s. */
 let SYNC=0,SYNC_AT=null;
-function sync(forcar){if(!MAIL_ON||(!forcar&&Date.now()-SYNC<15000))return Promise.resolve();SYNC=Date.now();
+function sync(forcar){if(!MAIL_ON||(!forcar&&Date.now()-SYNC<30000))return Promise.resolve();SYNC=Date.now();
  return fetch(CFG.EMAIL_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:CFG.EMAIL_TOKEN||'',acao:'listar'})})
  .then(r=>r.json()).then(j=>{if(!j||!j.ok||!Array.isArray(j.agendamentos))return;let mud=0;SYNC_AT=new Date();if(j.triagem&&typeof j.triagem.res=='number')TRI_G={res:j.triagem.res,enc:j.triagem.enc};
   j.agendamentos.forEach(g=>{const co=Number(g.coordenador_id)||(CO.find(c=>TXT(c.n)==g.coordenador)||{}).id,c=cd(co);

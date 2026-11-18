@@ -15,6 +15,7 @@ A opção A abaixo está **em funcionamento**: a planilha do Apps Script é o ba
 - **Atualizações de outro aparelho** (por exemplo, o coordenador confirmando) usam o e-mail e o nome completo guardados na planilha; o aparelho do coordenador não recebe e-mails dos alunos.
 - **Planilha:** colunas lidas e gravadas **pelo nome**; as novas (`coordenador_id`, `ra`, `observacoes`) entram no fim. Planilhas antigas continuam funcionando.
 - **Sem conexão:** o agendamento fica salvo no aparelho e o site avisa.
+- **Muita gente ao mesmo tempo:** leituras (`listar`) não usam a trava; gravações fazem fila por até 25 s e, se não der, o servidor responde `ocupado` sem gravar nada. O site tenta de novo até 3 vezes (com intervalos crescentes) e atualiza a lista no máximo a cada 30 s.
 
 **Limites conhecidos (aceitos para a demonstração)**
 - Sem login real: o aluno vê como "seus" só os agendamentos feitos **naquele aparelho** (identificação pelo nome). O coordenador vê todos.
