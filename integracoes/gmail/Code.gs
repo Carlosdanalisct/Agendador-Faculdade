@@ -38,8 +38,12 @@ const CONFIG = {
 // =====================================================================
 
 const ABA = 'Agendamentos';
+// Colunas novas entram sempre no FIM: a leitura e a gravação usam o nome da
+// coluna (cabeçalho), então planilhas antigas continuam funcionando.
 const COLS = ['protocolo', 'aluno', 'email', 'coordenador', 'data', 'hora', 'duracao',
-  'sala', 'local', 'assunto', 'status', 'lembrete_enviado', 'atualizado_em'];
+  'sala', 'local', 'assunto', 'status', 'lembrete_enviado', 'atualizado_em',
+  'coordenador_id', 'ra', 'observacoes'];
+const STATUS = ['Pendente', 'Confirmado', 'Concluído', 'Cancelado'];
 const DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 
 /** Chamado pelo site (POST com JSON em texto). */
@@ -53,10 +57,18 @@ function doPost(e) {
       if (!contador('b', null, CONFIG.LIMITE_BOTAO_DIA)) return resposta({ ok: false, erro: 'limite' });
       return resposta(Object.assign({ ok: true }, enviarLembretesDoDia(true)));
     }
+    if (d.acao === 'listar') return resposta({ ok: true, agendamentos: listar() });
     const a = limpa(d.ag || {});
     if (!/^AGD-\d{4}-\d+$/.test(a.protocolo) || !/^\d{4}-\d{2}-\d{2}$/.test(a.data) || !/^\d{2}:\d{2}$/.test(a.hora)) return resposta({ ok: false, erro: 'dados' });
     if (a.email && !emailValido(a.email)) return resposta({ ok: false, erro: 'email' });
-    salvar(d.acao, a);
+    const todas = linhas();
+    if (d.acao === 'novo' && todas.some(r => r.protocolo === a.protocolo)) return resposta({ ok: false, erro: 'duplicado' });
+    if ((d.acao === 'novo' || d.acao === 'alterado') && conflito(a, todas)) return resposta({ ok: false, erro: 'conflito' });
+    const atual = todas.find(r => r.protocolo === a.protocolo);
+    // Atualizações vindas de outro aparelho (ex.: coordenador) não trazem o e-mail
+    // nem o nome completo: o e-mail do aluno vem da planilha.
+    if (!a.email && atual && d.acao !== 'novo') a.email = atual.email;
+    salvar(d.acao, a, todas);
     if (a.email && MODELOS[d.acao]) {
       const pode = podeEnviar(a.email);
       if (pode !== 'ok') return resposta({ ok: false, erro: pode });
@@ -92,27 +104,71 @@ function aba() {
   return sh;
 }
 
+/** Cabeçalho da aba; acrescenta no fim as colunas que faltarem. */
+function cabecalho(sh) {
+  let cab = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0].map(String);
+  const faltam = COLS.filter(c => cab.indexOf(c) < 0);
+  if (faltam.length) {
+    sh.getRange(1, cab.length + 1, 1, faltam.length).setValues([faltam]);
+    cab = cab.concat(faltam);
+  }
+  return cab;
+}
+
+/** Linhas da planilha como objetos, lidas pelo nome da coluna. */
 function linhas() {
-  const v = aba().getDataRange().getValues();
+  const v = aba().getDataRange().getValues(), cab = (v[0] || []).map(String);
   return v.slice(1).map((r, i) => {
     const o = { _linha: i + 2 };
-    COLS.forEach((c, j) => { o[c] = String(r[j]); });
+    COLS.forEach(c => { const j = cab.indexOf(c); o[c] = j < 0 || r[j] == null ? '' : String(r[j]); });
     return o;
   });
 }
 
 /** Cria ou atualiza a linha do protocolo. Datas e horas vão como texto ("'"). */
-function salvar(acao, a) {
-  const sh = aba();
-  const atual = linhas().find(r => r.protocolo === a.protocolo);
+function salvar(acao, a, todas) {
+  const sh = aba(), cab = cabecalho(sh);
+  const atual = (todas || linhas()).find(r => r.protocolo === a.protocolo);
   const status = acao === 'cancelado' || acao === 'cancelado_coord' ? 'Cancelado'
-    : acao === 'confirmado' ? 'Confirmado' : (a.status || 'Pendente');
-  const lembrete = acao === 'alterado' ? '' : (atual ? atual.lembrete_enviado : '');
-  const valores = [a.protocolo, a.aluno, a.email || (atual && atual.email) || '', a.coordenador,
-    "'" + a.data, "'" + a.hora, a.duracao, a.sala, a.local, a.assunto, status, lembrete,
-    Utilities.formatDate(new Date(), CONFIG.FUSO, 'dd/MM/yyyy HH:mm')];
-  if (atual) sh.getRange(atual._linha, 1, 1, COLS.length).setValues([valores]);
+    : acao === 'confirmado' ? 'Confirmado' : acao === 'concluido' ? 'Concluído'
+    : acao === 'novo' ? 'Pendente' : (atual ? atual.status : 'Pendente');
+  const ant = atual || {};
+  const dado = {
+    // Em atualizações, nome, sala, local e assunto continuam os da criação
+    // (o aparelho do coordenador só conhece o nome abreviado).
+    protocolo: a.protocolo, aluno: atual ? ant.aluno || a.aluno : a.aluno, email: a.email || ant.email || '', coordenador: a.coordenador || ant.coordenador || '',
+    data: "'" + a.data, hora: "'" + a.hora, duracao: a.duracao, sala: atual ? ant.sala || a.sala : a.sala, local: atual ? ant.local || a.local : a.local,
+    assunto: atual ? ant.assunto || a.assunto : a.assunto,
+    status: status, lembrete_enviado: acao === 'alterado' ? '' : (ant.lembrete_enviado || ''),
+    atualizado_em: Utilities.formatDate(new Date(), CONFIG.FUSO, 'dd/MM/yyyy HH:mm'),
+    coordenador_id: a.co || ant.coordenador_id || '', ra: a.ra || ant.ra || '', observacoes: a.o || ant.observacoes || '',
+  };
+  const valores = cab.map(c => (c in dado ? dado[c] : ''));
+  if (atual) sh.getRange(atual._linha, 1, 1, valores.length).setValues([valores]);
   else sh.appendRow(valores);
+}
+
+/** Outro agendamento ativo do mesmo coordenador se sobrepõe a este horário? */
+function conflito(a, todas) {
+  if (!a.co) return false;
+  const ini = minutos(a.hora), fim = ini + Number(a.duracao || 15);
+  return todas.some(r => r.protocolo !== a.protocolo && String(r.coordenador_id) === String(a.co) && r.data === a.data
+    && r.status !== 'Cancelado' && minutos(r.hora) < fim && ini < minutos(r.hora) + Number(r.duracao || 15));
+}
+function minutos(hm) { const p = String(hm).split(':'); return Number(p[0]) * 60 + Number(p[1] || 0); }
+
+/** Agendamentos de ontem em diante, SEM e-mail, RA ou observações e com o nome
+ *  abreviado ("Carlos E."): o suficiente para a agenda e a visão do coordenador. */
+function listar() {
+  const ontem = Utilities.formatDate(new Date(Date.now() - 864e5), CONFIG.FUSO, 'yyyy-MM-dd');
+  return linhas().filter(r => /^AGD-/.test(r.protocolo) && r.data >= ontem && STATUS.indexOf(r.status) >= 0).map(r => ({
+    protocolo: r.protocolo, aluno: abrev(r.aluno), coordenador: r.coordenador, coordenador_id: r.coordenador_id,
+    data: r.data, hora: r.hora, duracao: r.duracao, sala: r.sala, assunto: r.assunto, status: r.status,
+  }));
+}
+function abrev(n) {
+  const p = String(n || '').trim().split(/\s+/).filter(Boolean);
+  return p.length > 1 ? p[0] + ' ' + p[p.length - 1][0].toUpperCase() + '.' : (p[0] || 'Aluno(a)');
 }
 
 // ------------------------------ e-mails ------------------------------
@@ -153,7 +209,7 @@ function enviarLembretesDoDia(forcar) {
     if ((forcar || !r.lembrete_enviado) && r.email && podeEnviar(r.email) === 'ok') {
       emailAluno('lembrete', r);
       contarEnvio(r.email);
-      aba().getRange(r._linha, COLS.indexOf('lembrete_enviado') + 1)
+      aba().getRange(r._linha, cabecalho(aba()).indexOf('lembrete_enviado') + 1)
         .setValue(Utilities.formatDate(new Date(), CONFIG.FUSO, 'dd/MM/yyyy HH:mm'));
       alunos++;
     }
@@ -236,6 +292,7 @@ function limpa(a) {
     coordenador: t(a.coordenador, 80), data: String(a.data || ''), hora: String(a.hora || ''),
     duracao: Math.min(120, Math.max(5, Number(a.duracao) || 15)), sala: t(a.sala, 40), local: t(a.local, 80),
     assunto: t(a.assunto, 80), status: t(a.status, 20),
+    co: Number(a.co) || '', ra: t(a.ra, 30), o: t(a.o, 300),
   };
 }
 

@@ -32,7 +32,8 @@ Passo a passo em [`integracoes/gmail/LEIA-ME.md`](../integracoes/gmail/LEIA-ME.m
 | Sem estilo ou erro 404 no Agendamento | Arquivos numa pasta extra: o `index.html` precisa estar na raiz |
 | Nome não aparece no agendamento | Abriu o agendamento direto, sem passar pelo login do portal |
 | Dados sumiram | Ficam só no navegador usado; outro navegador ou janela anônima começa do zero. **Reiniciar demonstração** (rodapé) volta aos dados de exemplo |
-| Aluno agendou no celular e não aparece para o coordenador | Esperado hoje: os dados são por navegador (veja [`BANCO-DE-DADOS.md`](BANCO-DE-DADOS.md)) |
+| Aluno agendou no celular e não aparece para o coordenador | Recarregue a tela do coordenador ou clique em **Atualizar**. Se ainda não aparecer, o `Code.gs` novo não foi publicado (**Nova versão** no Apps Script) |
+| "Esse horário acabou de ser ocupado por outra pessoa" | Outro aparelho marcou o mesmo horário antes; a agenda já aparece atualizada |
 | "Este e-mail não está na lista permitida" | O modo aberto está desligado (`ABERTO: false`) e o e-mail não está em `PERMITIDOS`, ou a configuração foi alterada sem publicar **Nova versão** no Apps Script |
 | "Limite diário de e-mails da demonstração atingido" | O endereço já recebeu 3 mensagens hoje, ou o público já recebeu 50. Use um e-mail da equipe (sem limite) ou espere o dia seguinte |
 | "Não foi possível enviar o e-mail agora" | `EMAIL_API`/`EMAIL_TOKEN` diferentes dos do Apps Script, ou implantação sem acesso "Qualquer pessoa" |
