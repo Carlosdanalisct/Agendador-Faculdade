@@ -17,7 +17,7 @@ Numa entrevista com a coordenação de um dos cursos, ouvimos que:
 O sistema ataca isso com:
 1. **Triagem antes de agendar:** o aluno escolhe o assunto. Ajuste de grade e reprovação mostram uma orientação que muitas vezes resolve sem agendar; financeiro e documentos são encaminhados ao setor certo.
 2. **Horários do tamanho do assunto:** 15 minutos, ou 45 para análise curricular.
-3. **Chatbot de orientação por setor**, ligado ao agendamento.
+3. **Chatbot de orientação por setor**, ligado ao agendamento: palavras-chave para as dúvidas comuns e **IA (Gemini, gratuita)** para frases livres, sem inventar regras.
 4. **E-mails de verdade pelo Gmail** (sem custo): confirmação ao aluno, lembrete às 7h do dia do atendimento e resumo do dia ao coordenador.
 5. **Visão da coordenação:** dashboard com indicadores da triagem, agendamentos, relatórios.
 
@@ -36,7 +36,7 @@ O sistema ataca isso com:
 | Tema | Guia |
 |---|---|
 | **Banco de dados compartilhado**: ✅ feito na planilha Google (próximo passo: banco real com login institucional) | [`docs/BANCO-DE-DADOS.md`](docs/BANCO-DE-DADOS.md) |
-| **Chat com IA** (entender frases livres sem inventar regras) | [`docs/CHAT-IA.md`](docs/CHAT-IA.md) |
+| **Chat com IA**: ✅ híbrido (palavras-chave + Gemini só para frases desconhecidas) | [`docs/CHAT-IA.md`](docs/CHAT-IA.md) |
 
 Antes de começar, leia [`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md).
 
@@ -99,7 +99,7 @@ HTML5 · CSS3 (variáveis, modo escuro) · JavaScript puro · React 18 (UMD, CDN
 
 - **Banco de dados na planilha Google:** agendamentos são compartilhados entre aparelhos (o coordenador vê o que foi marcado em qualquer celular, e o mesmo horário não pode ser marcado duas vezes). Sem login real, cada aluno vê como seus só os agendamentos feitos no próprio aparelho; solicitações e contadores da triagem continuam por aparelho.
 - **Login demonstrativo:** não há autenticação real; a visão de coordenador é sempre a do coordenador de exemplo (id 1).
-- **Chatbot por palavras-chave:** frases fora do vocabulário caem em "não consegui identificar".
+- **Chatbot:** a IA só funciona com a chave do Gemini configurada no Apps Script; sem ela (ou se falhar), frases fora do vocabulário caem em "não consegui identificar".
 - **E-mails:** qualquer pessoa pode testar com o próprio e-mail, com limites (3 por endereço e 50 no total por dia para quem não é da equipe; a equipe, na lista `PERMITIDOS`, não tem limite). A conta gratuita do Gmail envia até 100 por dia. A URL e a senha do serviço ficam públicas no `config.js`.
 - Salas, blocos, dias de atendimento e dados do rodapé são exemplos. Logos e imagens oficiais não estão incluídos.
 

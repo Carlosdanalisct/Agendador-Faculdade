@@ -1,6 +1,6 @@
 # Chatbot de orientação por setor
 
-> Este é o chatbot **atual, por palavras-chave**. Para a versão com IA, veja [`CHAT-IA.md`](CHAT-IA.md).
+> Este documento descreve a parte **por palavras-chave**, que responde primeiro. Frases que ela não entende vão para a **IA** (Gemini), que só identifica o setor e o assunto; veja [`CHAT-IA.md`](CHAT-IA.md).
 
 Objetivo: evitar encaminhamentos errados, explicando se o assunto é da Coordenação Acadêmica ou de outro setor **antes** do agendamento.
 

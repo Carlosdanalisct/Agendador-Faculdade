@@ -60,6 +60,18 @@ Salve e envie ao GitHub. Em 1 a 3 minutos o site publicado passa a enviar e-mail
 
 ---
 
+## Chat com IA (opcional, gratuito)
+
+O chatbot entende frases livres ("não tô vendo a matéria no portal") usando o **Gemini**. A IA só identifica o setor e o assunto; as respostas continuam sendo as do site. Sem a chave, o chatbot funciona como antes.
+
+1. Em [aistudio.google.com/apikey](https://aistudio.google.com/apikey), com uma conta Google da equipe, clique em **Criar chave de API** e copie a chave. **Não coloque a chave no site nem no repositório.**
+2. No editor do Apps Script: **Configurações do projeto** (engrenagem, à esquerda) → **Propriedades do script** → **Adicionar propriedade do script**. Propriedade: `GEMINI_KEY`. Valor: a chave. **Salvar propriedades do script**.
+3. Volte ao editor, escolha a função **`diagnosticoIA`** e clique em **Executar** (não use "Depuração", que é bem mais lento). Na primeira vez, o Google pede uma nova autorização (acesso a serviços externos): **Avançado → Acessar → Permitir**. Ela lista os modelos da sua conta, mede o tempo de cada um e passa a usar o **mais rápido** (leva até ~4 min).
+   Depois, rode **`testarIA`**: devem aparecer três linhas com `"ok":true` e o tempo de cada uma (o ideal é menos de 5 s; o site espera até 10 s).
+4. **Implantar → Gerenciar implantações → lápis → Versão: Nova versão → Implantar.**
+
+Se `testarIA` mostrar `"erro":"ia"`, confira a chave; se mostrar `"erro":"limite"`, a cota gratuita do minuto/dia acabou (o chatbot volta a funcionar por palavras-chave).
+
 ## Como mostrar na apresentação
 1. Agende um atendimento com qualquer e-mail (na apresentação, prefira um da equipe, que não tem limite). A confirmação chega em segundos.
 2. Para mostrar o **lembrete do dia** sem esperar até as 7h: agende para **hoje** (se o coordenador atender no dia da apresentação). Depois, na visão do coordenador, em **Dashboard**, clique em **"Enviar os lembretes de hoje agora"**. Chegam o lembrete do aluno e o resumo do coordenador.
