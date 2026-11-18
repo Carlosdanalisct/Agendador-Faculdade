@@ -10,8 +10,8 @@ Situação do protótipo. **Não garante conformidade legal**: exige validação
 | 4 | Política de reembolso | Página (`reemb`): não há cobrança |
 | 5 | Formulários na LGPD | Finalidade informada e aceite explícito |
 | 6 | Só dados necessários | Categoria, motivo e observações; login guarda só o nome; agendamentos de demonstração e a escolha de cookies ficam só no navegador; e-mail só se o aluno informar, para confirmação e lembrete |
-| 7 | Scripts de tracking | Nenhum; fontes do sistema. Recursos externos: React (cdnjs), VLibras (governo federal) e, se ligados, o serviço de e-mails e banco no Google Apps Script da equipe e o Gemini (só para frases que o chatbot não reconhece) |
-| 8 | Acessibilidade | Rótulos, ARIA, estados que não dependem só de cor; **VLibras** (tradução para Libras) nas duas páginas; contraste AA verificado nos modos claro e escuro; alvos de toque de 44px |
+| 7 | Scripts de tracking | Nenhum; fontes do sistema. Recursos externos: React (cdnjs) e, se ligados, o serviço de e-mails e banco no Google Apps Script da equipe e o Gemini (só para frases que o chatbot não reconhece) |
+| 8 | Acessibilidade | Rótulos, ARIA, estados que não dependem só de cor; contraste AA verificado nos modos claro e escuro; alvos de toque de 44px |
 | 9 | Alt nas imagens | Sem imagens de conteúdo; elementos decorativos com `aria-hidden` |
 | 10 | Contraste | Meta AA (4,5:1); validar com ferramenta WCAG |
 | 11 | Navegação por teclado | Foco visível, link "Ir para o conteúdo", Enter ativa cartões |
