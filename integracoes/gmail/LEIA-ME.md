@@ -72,6 +72,16 @@ O chatbot entende frases livres ("não tô vendo a matéria no portal") usando o
 
 Se `testarIA` mostrar `"erro":"ia"`, confira a chave; se mostrar `"erro":"limite"`, a cota gratuita do minuto/dia acabou (o chatbot volta a funcionar por palavras-chave).
 
+## Começar do zero (antes da apresentação)
+
+Apaga todos os agendamentos de teste para o dashboard e os relatórios mostrarem só o que for marcado de verdade.
+
+1. Cole o `Code.gs` mais recente, salve e publique uma **Nova versão** (Implantar → Gerenciar implantações → lápis → Nova versão).
+2. No editor, escolha a função **`zerarDados`** e clique em **Executar**. O registro mostra quantos agendamentos foram apagados. A chave da IA e o modelo escolhido continuam.
+3. Abra o site: o dashboard aparece zerado ("Sem dados"). Cada aparelho que já tinha aberto o site limpa sozinho os exemplos antigos; os agendamentos de teste feitos nele podem continuar aparecendo só ali (use **Reiniciar demonstração** no rodapé).
+
+**Atenção:** não dá para desfazer. Se quiser guardar, antes faça uma cópia da aba (botão direito → Duplicar).
+
 ## Como mostrar na apresentação
 1. Agende um atendimento com qualquer e-mail (na apresentação, prefira um da equipe, que não tem limite). A confirmação chega em segundos.
 2. Para mostrar o **lembrete do dia** sem esperar até as 7h: agende para **hoje** (se o coordenador atender no dia da apresentação). Depois, na visão do coordenador, em **Dashboard**, clique em **"Enviar os lembretes de hoje agora"**. Chegam o lembrete do aluno e o resumo do coordenador.

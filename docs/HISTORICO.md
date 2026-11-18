@@ -22,6 +22,7 @@ O que foi feito em cada etapa. Os detalhes de cada mudança estão nos pull requ
 | 14 | Tutorial do aceite e VLibras | Passo a passo ilustrado do aceite da grade (telas desenhadas, sem prints reais) na orientação de ajuste de grade; VLibras nas duas páginas |
 | 15 | Chat com IA (híbrido) | Palavras-chave primeiro; frases desconhecidas classificadas pelo Gemini no Apps Script (chave nas Propriedades do script); resposta sempre com os textos revisados; fallback, limite diário e aviso de privacidade |
 | 16 | Remoção do VLibras | O widget de Libras foi retirado das duas páginas, a pedido da equipe |
+| 17 | Dados reais, do zero | Fim dos agendamentos, protocolos, avisos e relatórios de exemplo e da ocupação fictícia da agenda; dashboard e relatórios calculados dos agendamentos reais; triagem somada no banco (ação `triagem`); `listar` com 90 dias; `zerarDados()` no Apps Script; avisos do aluno gerados dos próprios agendamentos |
 
 ## Decisões que valem lembrar
 - **Simulação, sem custo e sem contas institucionais:** nada usa e-mail ou agenda da faculdade ou de professores; os e-mails saem de um Gmail da equipe.

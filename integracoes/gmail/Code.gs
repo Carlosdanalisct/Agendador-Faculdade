@@ -57,17 +57,22 @@ function doPost(e) {
   try {
     const c = JSON.parse(e.postData.contents);
     if (c.acao === 'chat') return resposta(c.token === CONFIG.TOKEN ? classificarIA(String(c.texto || '').slice(0, 300)) : { ok: false, erro: 'token' });
+    if (c.acao === 'triagem') return resposta(c.token === CONFIG.TOKEN ? registrarTriagem(c.tipo) : { ok: false, erro: 'token' });
+    // Leitura não precisa da trava: com muita gente no site, as consultas não
+    // fazem fila na frente de quem está agendando.
+    if (c.acao === 'listar') return resposta(c.token === CONFIG.TOKEN ? { ok: true, agendamentos: listar(), triagem: totaisTriagem() } : { ok: false, erro: 'token' });
   } catch (err) { /* segue o fluxo normal */ }
   const lock = LockService.getScriptLock();
+  // Gravações em fila: espera até 25 s; se não der, responde "ocupado" sem gravar
+  // nada e o site tenta de novo.
+  if (!lock.tryLock(25000)) return resposta({ ok: false, erro: 'ocupado' });
   try {
-    lock.waitLock(10000);
     const d = JSON.parse(e.postData.contents);
     if (d.token !== CONFIG.TOKEN) return resposta({ ok: false, erro: 'token' });
     if (d.acao === 'lembretes_agora') {
       if (!contador('b', null, CONFIG.LIMITE_BOTAO_DIA)) return resposta({ ok: false, erro: 'limite' });
       return resposta(Object.assign({ ok: true }, enviarLembretesDoDia(true)));
     }
-    if (d.acao === 'listar') return resposta({ ok: true, agendamentos: listar() });
     const a = limpa(d.ag || {});
     if (!/^AGD-\d{4}-\d+$/.test(a.protocolo) || !/^\d{4}-\d{2}-\d{2}$/.test(a.data) || !/^\d{2}:\d{2}$/.test(a.hora)) return resposta({ ok: false, erro: 'dados' });
     if (a.email && !emailValido(a.email)) return resposta({ ok: false, erro: 'email' });
@@ -167,14 +172,27 @@ function conflito(a, todas) {
 }
 function minutos(hm) { const p = String(hm).split(':'); return Number(p[0]) * 60 + Number(p[1] || 0); }
 
-/** Agendamentos de ontem em diante, SEM e-mail, RA ou observações e com o nome
- *  abreviado ("Carlos E."): o suficiente para a agenda e a visão do coordenador. */
+/** Agendamentos dos últimos 90 dias em diante, SEM e-mail, RA ou observações e com
+ *  o nome abreviado ("Carlos E."): agenda, dashboard e relatórios do coordenador. */
 function listar() {
-  const ontem = Utilities.formatDate(new Date(Date.now() - 864e5), CONFIG.FUSO, 'yyyy-MM-dd');
-  return linhas().filter(r => /^AGD-/.test(r.protocolo) && r.data >= ontem && STATUS.indexOf(r.status) >= 0).map(r => ({
+  const desde = Utilities.formatDate(new Date(Date.now() - 90 * 864e5), CONFIG.FUSO, 'yyyy-MM-dd');
+  return linhas().filter(r => /^AGD-/.test(r.protocolo) && r.data >= desde && STATUS.indexOf(r.status) >= 0).map(r => ({
     protocolo: r.protocolo, aluno: abrev(r.aluno), coordenador: r.coordenador, coordenador_id: r.coordenador_id,
     data: r.data, hora: r.hora, duracao: r.duracao, sala: r.sala, assunto: r.assunto, status: r.status,
   }));
+}
+/** Triagem: "resolvido sem agendamento" (res) e "encaminhado a outro setor" (enc),
+ *  somados de todos os aparelhos. Zerados por zerarDados(). */
+function registrarTriagem(tipo) {
+  if (tipo !== 'res' && tipo !== 'enc') return { ok: false, erro: 'dados' };
+  if (!contador('tr', null, 2000)) return { ok: false, erro: 'limite' };
+  const p = PropertiesService.getScriptProperties(), k = 'TRI_' + tipo;
+  p.setProperty(k, String(Number(p.getProperty(k) || 0) + 1));
+  return { ok: true };
+}
+function totaisTriagem() {
+  const p = PropertiesService.getScriptProperties();
+  return { res: Number(p.getProperty('TRI_res') || 0), enc: Number(p.getProperty('TRI_enc') || 0) };
 }
 function abrev(n) {
   const p = String(n || '').trim().split(/\s+/).filter(Boolean);
@@ -288,7 +306,7 @@ function contador(tipo, chave, limite) {
 /** Apaga contadores de dias anteriores (roda no gatilho diário). */
 function limparContadores() {
   const p = PropertiesService.getScriptProperties(), d = hoje();
-  Object.keys(p.getProperties()).forEach(k => { if (/^(t|e|b|ia):\d{4}-/.test(k) && k.indexOf(d) < 0) p.deleteProperty(k); });
+  Object.keys(p.getProperties()).forEach(k => { if (/^(t|e|b|ia|tr):\d{4}-/.test(k) && k.indexOf(d) < 0) p.deleteProperty(k); });
 }
 function hoje() { return Utilities.formatDate(new Date(), CONFIG.FUSO, 'yyyy-MM-dd'); }
 /** Normaliza os dados vindos do site: tamanhos máximos e remoção de links. */
@@ -428,6 +446,16 @@ function testarEnvio() {
 function instalarLembreteDiario() {
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'lembreteAutomatico').forEach(t => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('lembreteAutomatico').timeBased().everyDays(1).atHour(CONFIG.HORA_LEMBRETE).inTimezone(CONFIG.FUSO).create();
+}
+/** COMEÇAR DO ZERO: apaga todos os agendamentos da aba "Agendamentos" (mantém o
+ *  cabeçalho) e zera os contadores da triagem e dos limites de e-mail.
+ *  Rode pelo editor ("Executar") antes da apresentação. Não dá para desfazer. */
+function zerarDados() {
+  const sh = aba(), n = sh.getLastRow();
+  if (n > 1) sh.deleteRows(2, n - 1);
+  const p = PropertiesService.getScriptProperties();
+  Object.keys(p.getProperties()).forEach(k => { if (/^(TRI_|t:|e:|b:|tr:)/.test(k)) p.deleteProperty(k); });
+  Logger.log('Pronto: ' + Math.max(0, n - 1) + ' agendamento(s) apagado(s) e contadores zerados. A chave da IA e o modelo escolhido foram mantidos.');
 }
 /** Executado pelo gatilho diário. */
 function lembreteAutomatico() { limparContadores(); enviarLembretesDoDia(false); }
